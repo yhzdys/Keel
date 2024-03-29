@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -79,6 +80,13 @@ public interface KeelAsyncKit {
                 return Future.succeededFuture();
             }
         });
+    }
+
+    /**
+     * @since 3.2.3
+     */
+    static <R> Future<Void> iterativelyCall(@Nonnull Iterable<R> iterable, @Nonnull BiFunction<R, FutureRepeat.RoutineResult, Future<Void>> itemProcessor) {
+        return FutureForEachBreakable.call(iterable, itemProcessor);
     }
 
     /**

@@ -7,6 +7,7 @@ import io.vertx.redis.client.RedisAPI;
 import io.vertx.redis.client.RedisConnection;
 import io.vertx.redis.client.RedisOptions;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,7 +24,7 @@ public class RedisKit implements RedisApiMixin, RedisScalarMixin, RedisListMixin
         /*
          * URL should be redis://[:password@]host[:port][/db-number]
          */
-        String url = Keel.getConfiguration().readString("redis", redisInstanceKey, "url");
+        String url = Keel.getConfiguration().getValueAsString(List.of("redis", redisInstanceKey, "url"), null);
         Objects.requireNonNull(url);
         this.client = Redis.createClient(Keel.getVertx(), new RedisOptions()
                 .setConnectionString(url)

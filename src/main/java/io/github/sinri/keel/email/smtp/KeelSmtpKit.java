@@ -1,6 +1,5 @@
 package io.github.sinri.keel.email.smtp;
 
-import io.github.sinri.keel.facade.KeelConfiguration;
 import io.vertx.core.Future;
 import io.vertx.ext.mail.MailClient;
 import io.vertx.ext.mail.MailConfig;
@@ -55,14 +54,15 @@ public class KeelSmtpKit {
      * As of 3.0.6, only five property keys supported.
      */
     private static MailConfig buildMailConfig(@Nonnull String smtpName) {
-        KeelConfiguration smtpConfiguration = Keel.getConfiguration().extract("email", "smtp", smtpName);
+        var smtpConfiguration = Keel.getConfiguration().extractConfigElement("email", "smtp", smtpName);
+        Objects.requireNonNull(smtpConfiguration);
 
         var mailConfig = new MailConfig();
-        mailConfig.setHostname(smtpConfiguration.readString("hostname"));
-        mailConfig.setPort(Objects.requireNonNull(smtpConfiguration.readAsInteger("port")));
-        mailConfig.setUsername(smtpConfiguration.readString("username"));
-        mailConfig.setPassword(smtpConfiguration.readString("password"));
-        mailConfig.setSsl("ON".equals(smtpConfiguration.readString("ssl")));
+        mailConfig.setHostname(smtpConfiguration.getValueAsString("hostname", null));
+        mailConfig.setPort(smtpConfiguration.getValueAsInteger("port", 25));
+        mailConfig.setUsername(smtpConfiguration.getValueAsString("username", null));
+        mailConfig.setPassword(smtpConfiguration.getValueAsString("password", null));
+        mailConfig.setSsl(smtpConfiguration.getValueAsBoolean("ssl", false));
 
         return mailConfig;
     }

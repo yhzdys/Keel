@@ -1,7 +1,7 @@
 package io.github.sinri.keel.mysql;
 
 import io.github.sinri.keel.core.TechnicalPreview;
-import io.github.sinri.keel.facade.KeelConfiguration;
+import io.github.sinri.keel.facade.configuration.KeelConfigElement;
 import io.github.sinri.keel.mysql.matrix.ResultMatrix;
 import io.vertx.core.Future;
 import io.vertx.mysqlclient.MySQLBuilder;
@@ -9,6 +9,7 @@ import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.sqlclient.PoolOptions;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -24,31 +25,18 @@ import static io.github.sinri.keel.facade.KeelInstance.Keel;
  * poolShared = false;
  * tcpKeepAlive=false;
  */
-public class KeelMySQLConfiguration extends KeelConfiguration {
-    private final @Nonnull String dataSourceName;
+public class KeelMySQLConfiguration extends KeelConfigElement {
+    //private final @Nonnull String dataSourceName;
 
-    public KeelMySQLConfiguration(@Nonnull String dataSourceName, @Nonnull KeelConfiguration keelConfiguration) {
-        this.dataSourceName = dataSourceName;
-        this.reloadDataFromJsonObject(keelConfiguration.toJsonObject());
+    public KeelMySQLConfiguration(@Nonnull KeelConfigElement base) {
+        super(base);
     }
 
-//    public String buildJDBCConnectionString() {
-//        MySQLConnectOptions connectOptions = getConnectOptions();
-//        var host = connectOptions.getHost();
-//        var port = connectOptions.getPort();
-//        var schema = connectOptions.getDatabase();
-//        var charset = connectOptions.getCharset();
-//        boolean ssl = connectOptions.isSsl();
-//        return "jdbc:mysql://" + host + ":" + port + "/" + schema
-//                + "?useSSL=" + (ssl ? "true" : "false") + "&useUnicode=true" +
-//                "&characterEncoding=" + charset
-//                + "&allowPublicKeyRetrieval="+(ssl ? "true" : "false");
-//    }
 
     @Nonnull
-    public static KeelMySQLConfiguration loadConfigurationForDataSource(@Nonnull KeelConfiguration keelConfiguration, @Nonnull String dataSourceName) {
-        KeelConfiguration configuration = keelConfiguration.extract("mysql", dataSourceName);
-        return new KeelMySQLConfiguration(dataSourceName, configuration);
+    public static KeelMySQLConfiguration loadConfigurationForDataSource(@Nonnull KeelConfigElement configCenter, @Nonnull String dataSourceName) {
+        KeelConfigElement keelConfigElement = configCenter.extractConfigElement("mysql", dataSourceName);
+        return new KeelMySQLConfiguration(Objects.requireNonNull(keelConfigElement));
     }
 
     @Nonnull
@@ -94,44 +82,46 @@ public class KeelMySQLConfiguration extends KeelConfiguration {
     }
 
     public String getHost() {
-        return readString("host");
+        return getValueAsString(List.of("host"), null);
     }
 
     public Integer getPort() {
-        return Objects.requireNonNullElse(readAsInteger("port"), 3306);
+        return getValueAsInteger(List.of("port"), 3306);
     }
 
     public String getPassword() {
-        return readString("password");
+        return getValueAsString(List.of("password"), null);
     }
 
     public String getUsername() {
-        var u = readString("username");
+        var u = getValueAsString("username", null);
         if (u == null) {
-            u = readString("user");
+            u = getValueAsString("user", null);
         }
         return u;
     }
 
     public String getDatabase() {
-        String schema = readString("schema");
+        String schema = getValueAsString("schema", null);
         if (schema == null) {
-            schema = readString("database");
+            schema = getValueAsString("database", null);
         }
         return Objects.requireNonNullElse(schema, "");
     }
 
     public String getCharset() {
-        return readString("charset");
+        return getValueAsString("charset", null);
     }
 
     public Integer getPoolMaxSize() {
-        return readAsInteger("poolMaxSize");
+        var x = getChild("poolMaxSize");
+        if (x == null) return null;
+        return x.getValueAsInteger();
     }
 
     @Nonnull
     public String getDataSourceName() {
-        return dataSourceName;
+        return getName();
     }
 
     /**
@@ -141,7 +131,11 @@ public class KeelMySQLConfiguration extends KeelConfiguration {
      * @since 3.0.1 let it be its original setting!
      */
     private Integer getConnectionTimeout() {
-        return readAsInteger("connectionTimeout");
+        var x = getChild("connectionTimeout");
+        if (x == null) {
+            return null;
+        }
+        return x.getValueAsInteger();
     }
 
     /**
@@ -152,7 +146,11 @@ public class KeelMySQLConfiguration extends KeelConfiguration {
      * @see <a href="https://vertx.io/docs/apidocs/io/vertx/sqlclient/PoolOptions.html#setConnectionTimeout-int-">...</a>
      */
     public Integer getPoolConnectionTimeout() {
-        return readAsInteger("poolConnectionTimeout");
+        KeelConfigElement keelConfigElement = extractConfigElement("poolConnectionTimeout");
+        if (keelConfigElement == null) {
+            return null;
+        }
+        return keelConfigElement.getValueAsInteger();
     }
 
     /**
@@ -162,7 +160,7 @@ public class KeelMySQLConfiguration extends KeelConfiguration {
      * that created it is undeployed.
      */
     public boolean getPoolShared() {
-        return !("NO".equals(readString("poolShared")));
+        return getValueAsBoolean("poolShared", true);
     }
 
 
