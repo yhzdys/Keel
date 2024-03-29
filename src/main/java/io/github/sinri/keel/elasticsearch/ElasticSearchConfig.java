@@ -19,7 +19,7 @@ public class ElasticSearchConfig extends KeelConfigElement {
     }
 
     public ElasticSearchConfig(String esKey) {
-        this(Keel.getConfiguration().extractConfigElement("es", esKey));
+        this(Keel.getConfiguration().extract("es", esKey));
     }
 
     /*

@@ -68,7 +68,7 @@ public class KeelConfigElement {
 
     @Nullable
     public String getValueAsString(@Nonnull List<String> keychain, @Nullable String def) {
-        KeelConfigElement extracted = this.extractConfigElement(keychain);
+        KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null) return def;
         return extracted.getValueAsString(def);
     }
@@ -94,7 +94,7 @@ public class KeelConfigElement {
     }
 
     public int getValueAsInteger(@Nonnull List<String> keychain, int def) {
-        KeelConfigElement extracted = this.extractConfigElement(keychain);
+        KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null) return def;
         return extracted.getValueAsInteger(def);
     }
@@ -119,7 +119,7 @@ public class KeelConfigElement {
     }
 
     public long getValueAsLong(@Nonnull List<String> keychain, long def) {
-        KeelConfigElement extracted = this.extractConfigElement(keychain);
+        KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null) return def;
         return extracted.getValueAsLong(def);
     }
@@ -144,7 +144,7 @@ public class KeelConfigElement {
     }
 
     public float getValueAsFloat(@Nonnull List<String> keychain, float def) {
-        KeelConfigElement extracted = this.extractConfigElement(keychain);
+        KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null) return def;
         return extracted.getValueAsFloat(def);
     }
@@ -169,7 +169,7 @@ public class KeelConfigElement {
     }
 
     public double getValueAsDouble(@Nonnull List<String> keychain, double def) {
-        KeelConfigElement extracted = this.extractConfigElement(keychain);
+        KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null) return def;
         return extracted.getValueAsDouble(def);
     }
@@ -194,7 +194,7 @@ public class KeelConfigElement {
     }
 
     public boolean getValueAsBoolean(@Nonnull List<String> keychain, boolean def) {
-        KeelConfigElement extracted = this.extractConfigElement(keychain);
+        KeelConfigElement extracted = this.extract(keychain);
         if (extracted == null) return def;
         return extracted.getValueAsBoolean(def);
     }
@@ -249,7 +249,7 @@ public class KeelConfigElement {
         return x;
     }
 
-    public @Nullable KeelConfigElement extractConfigElement(@Nonnull List<String> split) {
+    public @Nullable KeelConfigElement extract(@Nonnull List<String> split) {
         if (split.isEmpty()) return null;
         if (split.size() == 1) return this.children.get(split.get(0));
         KeelConfigElement keelConfigElement = this.children.get(split.get(0));
@@ -265,9 +265,9 @@ public class KeelConfigElement {
         return keelConfigElement;
     }
 
-    public @Nullable KeelConfigElement extractConfigElement(@Nonnull String... split) {
+    public @Nullable KeelConfigElement extract(@Nonnull String... split) {
         List<String> list = Arrays.asList(split);
-        return this.extractConfigElement(list);
+        return this.extract(list);
     }
 
     public KeelConfigElement loadProperties(@Nonnull Properties properties) {

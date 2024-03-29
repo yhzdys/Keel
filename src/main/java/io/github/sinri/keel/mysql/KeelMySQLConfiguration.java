@@ -35,7 +35,7 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
 
     @Nonnull
     public static KeelMySQLConfiguration loadConfigurationForDataSource(@Nonnull KeelConfigElement configCenter, @Nonnull String dataSourceName) {
-        KeelConfigElement keelConfigElement = configCenter.extractConfigElement("mysql", dataSourceName);
+        KeelConfigElement keelConfigElement = configCenter.extract("mysql", dataSourceName);
         return new KeelMySQLConfiguration(Objects.requireNonNull(keelConfigElement));
     }
 
@@ -146,7 +146,7 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
      * @see <a href="https://vertx.io/docs/apidocs/io/vertx/sqlclient/PoolOptions.html#setConnectionTimeout-int-">...</a>
      */
     public Integer getPoolConnectionTimeout() {
-        KeelConfigElement keelConfigElement = extractConfigElement("poolConnectionTimeout");
+        KeelConfigElement keelConfigElement = extract("poolConnectionTimeout");
         if (keelConfigElement == null) {
             return null;
         }

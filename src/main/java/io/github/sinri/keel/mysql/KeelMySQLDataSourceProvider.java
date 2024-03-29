@@ -24,7 +24,7 @@ public class KeelMySQLDataSourceProvider {
             @Nonnull String dataSourceName,
             Function<SqlConnection, C> sqlConnectionWrapper
     ) {
-        var configuration = Keel.getConfiguration().extractConfigElement("mysql", dataSourceName);
+        var configuration = Keel.getConfiguration().extract("mysql", dataSourceName);
         Objects.requireNonNull(configuration);
         KeelMySQLConfiguration mySQLConfigure = new KeelMySQLConfiguration(configuration);
         return new NamedMySQLDataSource<>(mySQLConfigure, sqlConnectionWrapper);

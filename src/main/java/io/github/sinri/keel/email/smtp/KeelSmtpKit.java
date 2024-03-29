@@ -54,7 +54,7 @@ public class KeelSmtpKit {
      * As of 3.0.6, only five property keys supported.
      */
     private static MailConfig buildMailConfig(@Nonnull String smtpName) {
-        var smtpConfiguration = Keel.getConfiguration().extractConfigElement("email", "smtp", smtpName);
+        var smtpConfiguration = Keel.getConfiguration().extract("email", "smtp", smtpName);
         Objects.requireNonNull(smtpConfiguration);
 
         var mailConfig = new MailConfig();

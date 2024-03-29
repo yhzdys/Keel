@@ -44,7 +44,7 @@ public class KeelInstance implements KeelHelpersInterface, KeelClusterKit {
 
     public @Nullable String config(@Nonnull String dotJoinedKeyChain) {
         String[] split = dotJoinedKeyChain.split("\\.");
-        KeelConfigElement keelConfigElement = this.configuration.extractConfigElement(split);
+        KeelConfigElement keelConfigElement = this.configuration.extract(split);
         if (keelConfigElement == null) {
             return null;
         }
