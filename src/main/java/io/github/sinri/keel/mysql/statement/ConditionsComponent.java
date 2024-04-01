@@ -1,8 +1,6 @@
 package io.github.sinri.keel.mysql.statement;
 
 import io.github.sinri.keel.mysql.condition.*;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -20,6 +18,10 @@ public class ConditionsComponent {
 
     public ConditionsComponent() {
         conditions = new ArrayList<>();
+    }
+
+    public ConditionsComponent(@Nonnull ConditionsComponent another) {
+        this.conditions = another.conditions;
     }
 
     public boolean isEmpty() {
@@ -199,56 +201,9 @@ public class ConditionsComponent {
         return this;
     }
 
-    /**
-     * @param catholicQueryCriteria CatholicQueryCriteria Instance
-     * @return this
-     * @since 1.13
-     */
-    @Deprecated(since = "3.1.8", forRemoval = true)
-    public ConditionsComponent withCatholicQueryCriteria(@Nonnull CatholicQueryCriteria catholicQueryCriteria) {
-        return catholicQueryCriteria.mergeIntoConditionsComponent(this);
-    }
-
     @Override
     public String toString() {
         if (conditions.isEmpty()) return "";
         return KeelHelpers.stringHelper().joinStringArray(conditions, " and ");
-    }
-
-    /**
-     * @since 2.0
-     */
-    @Deprecated(since = "3.1.0", forRemoval = true)
-    public final ConditionsComponent quickMapping(JsonObject mapping) {
-        mapping.forEach(entry -> quickMapping(entry.getKey(), entry.getValue()));
-        return this;
-    }
-
-    /**
-     * @since 2.0
-     */
-    @Deprecated(since = "3.1.0", forRemoval = true)
-    public final ConditionsComponent quickMapping(String key, Object value) {
-        if (key != null && !key.isEmpty()) {
-            if (value == null) {
-                this.comparison(compareCondition -> compareCondition
-                        .compare(key)
-                        .operator(CompareCondition.OP_IS)
-                        .againstExpression("NULL")
-                );
-            } else if (value instanceof JsonArray) {
-                if (((JsonArray) value).size() > 0) {
-                    this.among(amongstCondition -> amongstCondition
-                            .elementAsExpression(key)
-                            .amongstValueList(((JsonArray) value).getList())
-                    );
-                }
-            } else {
-                this.comparison(compareCondition -> compareCondition
-                        .filedEqualsValue(key, value.toString())
-                );
-            }
-        }
-        return this;
     }
 }

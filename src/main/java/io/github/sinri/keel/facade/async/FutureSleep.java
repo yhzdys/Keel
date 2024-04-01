@@ -15,10 +15,6 @@ import static io.github.sinri.keel.facade.KeelInstance.Keel;
  */
 public class FutureSleep {
     static Future<Void> call(long time) {
-//        Promise<Void> promise = Promise.promise();
-//        if (time < 1) time = 1;
-//        Keel.getVertx().setTimer(time, x -> promise.complete());
-//        return promise.future();
         return call(time, null);
     }
 

@@ -20,7 +20,7 @@ public class FutureForEach<T> {
     }
 
     static <T> Future<Void> call(@Nonnull Iterable<T> collection, @Nonnull Function<T, Future<Void>> itemProcessor) {
-        return new FutureForEach<T>(itemProcessor).process(collection);
+        return new FutureForEach<>(itemProcessor).process(collection);
     }
 
     private Future<Void> process(@Nonnull Iterable<T> collection) {

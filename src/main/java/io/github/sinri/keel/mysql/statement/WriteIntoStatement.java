@@ -74,15 +74,7 @@ public class WriteIntoStatement extends AbstractModifyStatement {
 
     public WriteIntoStatement addDataMatrix(@Nonnull List<List<Object>> batch) {
         for (List<Object> row : batch) {
-            List<String> t = new ArrayList<>();
-            for (Object item : row) {
-                if (item == null) {
-                    t.add("NULL");
-                } else {
-                    t.add(new Quoter(String.valueOf(item)).toString());
-                }
-            }
-            this.batchValues.add(t);
+            this.addDataRow(row);
         }
         return this;
     }

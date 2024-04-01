@@ -1,10 +1,15 @@
 package io.github.sinri.keel.mysql.statement;
 
+import io.github.sinri.keel.mysql.NamedMySQLConnection;
 import io.github.sinri.keel.mysql.condition.CompareCondition;
 import io.github.sinri.keel.mysql.condition.GroupCondition;
 import io.github.sinri.keel.mysql.condition.MySQLCondition;
 import io.github.sinri.keel.mysql.condition.RawCondition;
 import io.github.sinri.keel.mysql.exception.KeelSQLGenerateError;
+import io.github.sinri.keel.mysql.exception.KeelSQLResultRowIndexError;
+import io.github.sinri.keel.mysql.matrix.ResultMatrix;
+import io.vertx.core.Future;
+import io.vertx.sqlclient.SqlConnection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,23 +21,51 @@ import java.util.function.Function;
 import static io.github.sinri.keel.helper.KeelHelpersInterface.KeelHelpers;
 
 public class SelectStatement extends AbstractReadStatement {
-    //    private final List<KeelMySQLCondition> whereConditions = new ArrayList<>();
-    final ConditionsComponent whereConditionsComponent = new ConditionsComponent();
-    //    private final List<KeelMySQLCondition> havingConditions = new ArrayList<>();
-    final ConditionsComponent havingConditionsComponent = new ConditionsComponent();
-    private final List<String> tables = new ArrayList<>();
-    private final List<String> columns = new ArrayList<>();
-    private final List<String> categories = new ArrayList<>();
-    private final List<String> sortRules = new ArrayList<>();
-    private long offset = 0;
-    private long limit = 0;
-    private @Nonnull String lockMode = "";
+    final ConditionsComponent whereConditionsComponent;
+    final ConditionsComponent havingConditionsComponent;
+    private final List<String> tables;
+    private final List<String> columns;
+    private final List<String> categories;
+    private final List<String> sortRules;
+    private long offset;
+    private long limit;
+    private @Nonnull String lockMode;
     /**
      * For MySQL 5.7 ,8.0 or higher, in Select, to limit the max execution time in millisecond.
      *
      * @since 3.1.0
      */
-    private @Nullable Long maxExecutionTime = null;
+    private @Nullable Long maxExecutionTime;
+
+    /**
+     * @param another To swift clone one instance based on without direct reference.
+     * @since 3.2.3
+     */
+    public SelectStatement(@Nonnull SelectStatement another) {
+        this.whereConditionsComponent = new ConditionsComponent(another.whereConditionsComponent);
+        this.havingConditionsComponent = new ConditionsComponent(another.havingConditionsComponent);
+        this.tables = new ArrayList<>(another.tables);
+        this.columns = new ArrayList<>(another.columns);
+        this.categories = new ArrayList<>(another.categories);
+        this.sortRules = new ArrayList<>(another.sortRules);
+        this.offset = another.offset;
+        this.limit = another.limit;
+        this.lockMode = another.lockMode;
+        this.maxExecutionTime = another.maxExecutionTime;
+    }
+
+    public SelectStatement() {
+        this.whereConditionsComponent = new ConditionsComponent();
+        this.havingConditionsComponent = new ConditionsComponent();
+        this.tables = new ArrayList<>();
+        this.columns = new ArrayList<>();
+        this.categories = new ArrayList<>();
+        this.sortRules = new ArrayList<>();
+        this.offset = 0;
+        this.limit = 0;
+        this.lockMode = "";
+        this.maxExecutionTime = null;
+    }
 
     public SelectStatement from(@Nonnull String tableExpression) {
         return from(tableExpression, null);
@@ -57,11 +90,11 @@ public class SelectStatement extends AbstractReadStatement {
     /**
      * @since 2.8
      */
-    public SelectStatement from(@Nonnull AbstractReadStatement subQuery,@Nonnull String alias) {
+    public SelectStatement from(@Nonnull AbstractReadStatement subQuery, @Nonnull String alias) {
         if (alias.isBlank()) {
             throw new KeelSQLGenerateError("Sub Query without alias");
         }
-        return this.from("(" + subQuery.toString() + ")", alias);
+        return this.from("(" + subQuery + ")", alias);
     }
 
     public SelectStatement leftJoin(@Nonnull Function<JoinComponent, JoinComponent> joinFunction) {
@@ -88,13 +121,18 @@ public class SelectStatement extends AbstractReadStatement {
         return this;
     }
 
+    public SelectStatement resetColumns() {
+        this.columns.clear();
+        return this;
+    }
+
     public SelectStatement column(@Nonnull Function<ColumnComponent, ColumnComponent> func) {
         columns.add(func.apply(new ColumnComponent()).toString());
         return this;
     }
 
     public SelectStatement columnWithAlias(@Nonnull String columnExpression, @Nonnull String alias) {
-        if(columnExpression.isBlank() || alias.isBlank()){
+        if (columnExpression.isBlank() || alias.isBlank()) {
             throw new IllegalArgumentException("Column or its alias is empty.");
         }
         columns.add(columnExpression + " as `" + alias + "`");
@@ -204,7 +242,7 @@ public class SelectStatement extends AbstractReadStatement {
         if (limit > 0) {
             sql.append(AbstractStatement.SQL_COMPONENT_SEPARATOR).append("LIMIT ").append(limit).append(" OFFSET ").append(offset);
         }
-        if (!"".equals(lockMode)) {
+        if (!lockMode.isEmpty()) {
             sql.append(AbstractStatement.SQL_COMPONENT_SEPARATOR).append(lockMode);
         }
         if (!getRemarkAsComment().isEmpty()) {
@@ -213,11 +251,63 @@ public class SelectStatement extends AbstractReadStatement {
         return String.valueOf(sql);
     }
 
+    /**
+     * @since 3.2.3
+     */
+    Future<PaginationResult> queryForPagination(
+            NamedMySQLConnection sqlConnection,
+            long pageNo,
+            long pageSize
+    ) {
+        return this.queryForPagination(sqlConnection.getSqlConnection(), pageNo, pageSize);
+    }
+
+    /**
+     * Call from this instance, as the original query as Select Statement for all rows in certain order.
+     *
+     * @param pageNo   since 1.
+     * @param pageSize a number
+     * @since 3.2.3
+     */
+    Future<PaginationResult> queryForPagination(
+            SqlConnection sqlConnection,
+            long pageNo,
+            long pageSize
+    ) {
+        if (pageSize <= 0) throw new IllegalArgumentException("page size <= 0");
+        if (pageNo < 1) throw new IllegalArgumentException("page no < 1");
+        var countStatement = new SelectStatement(this)
+                .resetColumns()
+                .columnWithAlias("count(*)", "total")
+                .limit(pageSize, (pageNo - 1) * pageSize);
+
+        return Future.all(
+                        countStatement.execute(sqlConnection)
+                                .compose(resultMatrix -> {
+                                    try {
+                                        long total = resultMatrix.getOneColumnOfFirstRowAsLong("total");
+                                        return Future.succeededFuture(total);
+                                    } catch (KeelSQLResultRowIndexError e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }),
+                        this.execute(sqlConnection)
+                )
+                .compose(compositeFuture -> {
+                    Long total = compositeFuture.resultAt(0);
+                    ResultMatrix resultMatrix = compositeFuture.resultAt(1);
+                    return Future.succeededFuture(new PaginationResult(total, resultMatrix));
+                });
+    }
+
     public static class JoinComponent {
-        @Nonnull final String joinType;
+        @Nonnull
+        final String joinType;
         final List<MySQLCondition> onConditions = new ArrayList<>();
-        @Nonnull String tableExpression="NOT-SET";
-        @Nullable String alias;
+        @Nonnull
+        String tableExpression = "NOT-SET";
+        @Nullable
+        String alias;
 
         public JoinComponent(@Nonnull String joinType) {
             this.joinType = joinType;
@@ -267,17 +357,21 @@ public class SelectStatement extends AbstractReadStatement {
     }
 
     public static class ColumnComponent {
-        @Nullable String schema;
-        @Nullable String field="NOT-SET";
-        @Nullable String expression;
-        @Nullable String alias;
+        @Nullable
+        String schema;
+        @Nullable
+        String field = "NOT-SET";
+        @Nullable
+        String expression;
+        @Nullable
+        String alias;
 
         public ColumnComponent field(@Nonnull String field) {
             this.field = field;
             return this;
         }
 
-        public ColumnComponent field(@Nullable String schema,@Nonnull String field) {
+        public ColumnComponent field(@Nullable String schema, @Nonnull String field) {
             this.schema = schema;
             this.field = field;
             return this;
@@ -309,6 +403,24 @@ public class SelectStatement extends AbstractReadStatement {
                 column.append(" AS `").append(alias).append("`");
             }
             return String.valueOf(column);
+        }
+    }
+
+    public static class PaginationResult {
+        private final long total;
+        private final ResultMatrix resultMatrix;
+
+        public PaginationResult(long total, ResultMatrix resultMatrix) {
+            this.total = total;
+            this.resultMatrix = resultMatrix;
+        }
+
+        public long getTotal() {
+            return total;
+        }
+
+        public ResultMatrix getResultMatrix() {
+            return resultMatrix;
         }
     }
 }

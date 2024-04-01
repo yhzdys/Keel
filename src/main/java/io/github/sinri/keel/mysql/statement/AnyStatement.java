@@ -66,14 +66,14 @@ public interface AnyStatement {
         return writeIntoStatement;
     }
 
-    static TemplatedReadStatement templatedRead(@Nonnull String path,@Nonnull  Handler<TemplateArgumentMapping> templatedReadStatementHandler) {
+    static TemplatedReadStatement templatedRead(@Nonnull String path, @Nonnull Handler<TemplateArgumentMapping> templatedReadStatementHandler) {
         TemplatedReadStatement readStatement = TemplatedStatement.loadTemplateToRead(path);
         TemplateArgumentMapping arguments = readStatement.getArguments();
         templatedReadStatementHandler.handle(arguments);
         return readStatement;
     }
 
-    static TemplatedModifyStatement templatedModify(@Nonnull String path,@Nonnull  Handler<TemplateArgumentMapping> templatedModifyStatementHandler) {
+    static TemplatedModifyStatement templatedModify(@Nonnull String path, @Nonnull Handler<TemplateArgumentMapping> templatedModifyStatementHandler) {
         TemplatedModifyStatement templatedModifyStatement = TemplatedStatement.loadTemplateToModify(path);
         TemplateArgumentMapping arguments = templatedModifyStatement.getArguments();
         templatedModifyStatementHandler.handle(arguments);

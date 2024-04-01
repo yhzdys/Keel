@@ -48,9 +48,6 @@ abstract public class AbstractStatement implements AnyStatement {
     }
 
     public AbstractStatement setRemarkAsComment(@Nonnull String remarkAsComment) {
-//        if (remarkAsComment == null) {
-//            remarkAsComment = "";
-//        }
         remarkAsComment = remarkAsComment.replaceAll("[\\r\\n]+", "¦");
         this.remarkAsComment = remarkAsComment;
         return this;
