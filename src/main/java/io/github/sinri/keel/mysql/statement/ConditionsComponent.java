@@ -21,7 +21,7 @@ public class ConditionsComponent {
     }
 
     public ConditionsComponent(@Nonnull ConditionsComponent another) {
-        this.conditions = another.conditions;
+        this.conditions = new ArrayList<>(another.conditions);
     }
 
     public boolean isEmpty() {
