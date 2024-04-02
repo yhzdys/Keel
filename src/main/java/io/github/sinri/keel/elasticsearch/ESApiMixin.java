@@ -3,6 +3,8 @@ package io.github.sinri.keel.elasticsearch;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.DecodeException;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.WebClient;
@@ -64,9 +66,7 @@ public interface ESApiMixin {
                 })
                 .compose(bufferHttpResponse -> {
                     int statusCode = bufferHttpResponse.statusCode();
-                    JsonObject resp = bufferHttpResponse.bodyAsJsonObject();
-
-                    if ((statusCode >= 300 || statusCode < 200) || resp == null) {
+                    if ((statusCode >= 300 || statusCode < 200)) {
 //                        this.getLogger().error(log -> {
 //                            logRequestEnricher.handle(log);
 //                            log.message("ES API Response Error")
@@ -85,6 +85,14 @@ public interface ESApiMixin {
                                 queries,
                                 requestBody
                         ));
+                    }
+                    JsonObject resp;
+                    try {
+                        resp = bufferHttpResponse.bodyAsJsonObject();
+                    } catch (DecodeException decodeException) {
+                        // There are situations that use Json Array as the response body!
+                        resp = new JsonObject()
+                                .put("array", new JsonArray(bufferHttpResponse.bodyAsString()));
                     }
 //                    this.getLogger().info(log -> {
 //                        logRequestEnricher.handle(log);
@@ -206,6 +214,18 @@ public interface ESApiMixin {
             this.endpoint = endpoint;
             this.queries = queries;
             this.requestBody = requestBody;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getName()
+                    + "{status_code: " + statusCode
+                    + ", response: " + response
+                    + ", http_method: " + httpMethod.name()
+                    + ", endpoint: " + endpoint
+                    + ", queries: " + queries
+                    + ", request_body: " + requestBody
+                    + "}";
         }
 
         public int getStatusCode() {
