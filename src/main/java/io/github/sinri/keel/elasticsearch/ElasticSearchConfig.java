@@ -35,23 +35,23 @@ public class ElasticSearchConfig extends KeelConfigElement {
      */
 
     public String username() {
-        return getValueAsString("username", null);
+        return readString("username", null);
     }
 
     public String password() {
-        return getValueAsString("password", null);
+        return readString("password", null);
     }
 
     public @Nonnull String clusterHost() {
-        return Objects.requireNonNull(getValueAsString(List.of("cluster", "host"), null));
+        return Objects.requireNonNull(readString(List.of("cluster", "host"), null));
     }
 
     public int clusterPort() {
-        return getValueAsInteger(List.of("cluster", "port"), 9200);
+        return readInteger(List.of("cluster", "port"), 9200);
     }
 
     public @Nonnull String clusterScheme() {
-        return Objects.requireNonNull(getValueAsString(List.of("cluster", "scheme"), "http"));
+        return Objects.requireNonNull(readString(List.of("cluster", "scheme"), "http"));
     }
 
     public @Nonnull String clusterApiUrl(@Nonnull String endpoint) {
@@ -59,6 +59,6 @@ public class ElasticSearchConfig extends KeelConfigElement {
     }
 
     public @Nullable String opaqueId() {
-        return getValueAsString("opaqueId", null);
+        return readString("opaqueId", null);
     }
 }

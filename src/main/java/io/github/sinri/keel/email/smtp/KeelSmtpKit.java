@@ -58,11 +58,11 @@ public class KeelSmtpKit {
         Objects.requireNonNull(smtpConfiguration);
 
         var mailConfig = new MailConfig();
-        mailConfig.setHostname(smtpConfiguration.getValueAsString("hostname", null));
-        mailConfig.setPort(smtpConfiguration.getValueAsInteger("port", 25));
-        mailConfig.setUsername(smtpConfiguration.getValueAsString("username", null));
-        mailConfig.setPassword(smtpConfiguration.getValueAsString("password", null));
-        mailConfig.setSsl(smtpConfiguration.getValueAsBoolean("ssl", false));
+        mailConfig.setHostname(smtpConfiguration.readString("hostname", null));
+        mailConfig.setPort(smtpConfiguration.readInteger("port", 25));
+        mailConfig.setUsername(smtpConfiguration.readString("username", null));
+        mailConfig.setPassword(smtpConfiguration.readString("password", null));
+        mailConfig.setSsl(smtpConfiguration.readBoolean("ssl", false));
 
         return mailConfig;
     }

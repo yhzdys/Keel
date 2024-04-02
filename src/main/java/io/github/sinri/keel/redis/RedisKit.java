@@ -24,7 +24,7 @@ public class RedisKit implements RedisApiMixin, RedisScalarMixin, RedisListMixin
         /*
          * URL should be redis://[:password@]host[:port][/db-number]
          */
-        String url = Keel.getConfiguration().getValueAsString(List.of("redis", redisInstanceKey, "url"), null);
+        String url = Keel.getConfiguration().readString(List.of("redis", redisInstanceKey, "url"), null);
         Objects.requireNonNull(url);
         this.client = Redis.createClient(Keel.getVertx(), new RedisOptions()
                 .setConnectionString(url)

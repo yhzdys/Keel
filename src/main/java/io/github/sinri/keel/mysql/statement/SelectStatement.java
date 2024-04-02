@@ -279,7 +279,8 @@ public class SelectStatement extends AbstractReadStatement {
         var countStatement = new SelectStatement(this)
                 .resetColumns()
                 .columnWithAlias("count(*)", "total")
-                .limit(pageSize, (pageNo - 1) * pageSize);
+                .limit(0, 0);
+        this.limit(pageSize, (pageNo - 1) * pageSize);
 
         return Future.all(
                         countStatement.execute(sqlConnection)

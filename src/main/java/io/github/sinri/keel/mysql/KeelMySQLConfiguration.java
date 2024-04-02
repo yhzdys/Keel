@@ -82,35 +82,35 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
     }
 
     public String getHost() {
-        return getValueAsString(List.of("host"), null);
+        return readString(List.of("host"), null);
     }
 
     public Integer getPort() {
-        return getValueAsInteger(List.of("port"), 3306);
+        return readInteger(List.of("port"), 3306);
     }
 
     public String getPassword() {
-        return getValueAsString(List.of("password"), null);
+        return readString(List.of("password"), null);
     }
 
     public String getUsername() {
-        var u = getValueAsString("username", null);
+        var u = readString("username", null);
         if (u == null) {
-            u = getValueAsString("user", null);
+            u = readString("user", null);
         }
         return u;
     }
 
     public String getDatabase() {
-        String schema = getValueAsString("schema", null);
+        String schema = readString("schema", null);
         if (schema == null) {
-            schema = getValueAsString("database", null);
+            schema = readString("database", null);
         }
         return Objects.requireNonNullElse(schema, "");
     }
 
     public String getCharset() {
-        return getValueAsString("charset", null);
+        return readString("charset", null);
     }
 
     public Integer getPoolMaxSize() {
@@ -160,7 +160,7 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
      * that created it is undeployed.
      */
     public boolean getPoolShared() {
-        return getValueAsBoolean("poolShared", true);
+        return readBoolean("poolShared", true);
     }
 
 

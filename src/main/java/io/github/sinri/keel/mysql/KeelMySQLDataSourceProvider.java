@@ -13,7 +13,7 @@ public class KeelMySQLDataSourceProvider {
 
     @Nonnull
     public static String defaultMySQLDataSourceName() {
-        return Objects.requireNonNull(Keel.getConfiguration().getValueAsString(List.of("mysql", "default_data_source_name"), "default"));
+        return Objects.requireNonNull(Keel.getConfiguration().readString(List.of("mysql", "default_data_source_name"), "default"));
     }
 
     /**
