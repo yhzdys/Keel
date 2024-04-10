@@ -45,7 +45,7 @@ public class BlockingVerticlePlanA extends KeelVerticleImplWithEventLogger {
 
 //                                System.out.println("isWorkerContext: " + futureForBlocking.context.isWorkerContext());
 //                                System.out.println("isEventLoopContext: " + futureForBlocking.context.isEventLoopContext());
-                                return Future.succeededFuture();
+                                return io.vertx.core.Future.succeededFuture();
                             })
                             .compose(ready -> {
                                 return Future.all(
