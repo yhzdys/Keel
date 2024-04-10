@@ -6,6 +6,7 @@ import java.util.List;
 
 import static io.github.sinri.keel.helper.KeelHelpersInterface.KeelHelpers;
 
+@Deprecated(since = "3.2.4")
 public class JsonSchemeMismatchException extends Exception {
     public static final String RuleSchemeError = "SchemeError";
     public static final String RuleEmptyArrayNotAllowed = "EmptyArrayNotAllowed";

@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 /**
  * @since 2.7
  */
+@Deprecated(since = "3.2.4")
 public class JsonStringScheme extends JsonValueScheme<String> {
 
     private Pattern pattern;

@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * @since 2.7
  */
+@Deprecated(since = "3.2.4")
 public class JsonArrayScheme extends JsonValueScheme<JsonArray> {
     private final Map<Integer, JsonElementScheme<?>> indexedElementSchemeMap = new LinkedHashMap<>();
     private JsonElementScheme<?> defaultElementScheme;

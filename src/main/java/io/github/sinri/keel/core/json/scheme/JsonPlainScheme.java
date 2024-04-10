@@ -4,6 +4,7 @@ import io.vertx.core.json.JsonObject;
 
 import javax.annotation.Nonnull;
 
+@Deprecated(since = "3.2.4")
 public class JsonPlainScheme extends JsonValueScheme<Object> {
 
     @Override

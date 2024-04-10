@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 /**
  * @since 2.7
  */
+@Deprecated(since = "3.2.4")
 public class JsonBooleanScheme extends JsonValueScheme<Boolean> {
     private Boolean expected;
 

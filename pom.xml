@@ -38,7 +38,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vertxVersion>4.5.4</vertxVersion>
+        <vertxVersion>4.5.7</vertxVersion>
         <commonmarkVersion>0.21.0</commonmarkVersion>
         <jacksonVersion>2.15.3</jacksonVersion>
         <poiVersion>5.2.5</poiVersion>
@@ -143,6 +143,11 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-redis-client</artifactId>
+            <version>${vertxVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-json-schema</artifactId>
             <version>${vertxVersion}</version>
         </dependency>
         <dependency>

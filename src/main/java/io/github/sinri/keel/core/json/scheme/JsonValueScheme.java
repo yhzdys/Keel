@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 /**
  * @since 2.7
  */
+@Deprecated(since = "3.2.4")
 abstract public class JsonValueScheme<T> implements JsonElementScheme<T> {
 
     protected T digested;

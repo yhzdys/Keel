@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 /**
  * @since 2.7
  */
+@Deprecated(since = "3.2.4")
 public class JsonNumberScheme extends JsonValueScheme<Number> {
     //private boolean withFractions;
 

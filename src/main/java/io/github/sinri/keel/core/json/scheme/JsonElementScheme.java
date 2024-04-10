@@ -6,6 +6,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * @since 2.7
  */
+@Deprecated(since = "3.2.4")
 public interface JsonElementScheme<T> extends JsonifiableEntity<JsonElementScheme<T>> {
     static JsonElementScheme<?> fromJsonObject(JsonObject jsonObject) {
         JsonElementSchemeType scheme_type = JsonElementSchemeType.valueOf(jsonObject.getString("scheme_type"));
