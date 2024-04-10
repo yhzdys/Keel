@@ -1,5 +1,7 @@
 package io.github.sinri.keel.core;
 
+
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,9 +15,9 @@ public class KeelCronExpression {
     final Set<Integer> dayOptions = new HashSet<>();
     final Set<Integer> monthOptions = new HashSet<>();
     final Set<Integer> weekdayOptions = new HashSet<>();
-    private final String rawCronExpression;
+    private final @Nonnull String rawCronExpression;
 
-    public KeelCronExpression(String rawCronExpression) {
+    public KeelCronExpression(@Nonnull String rawCronExpression) {
         this.rawCronExpression = rawCronExpression;
 
         String[] parts = rawCronExpression.trim().split("\\s+");
@@ -36,24 +38,20 @@ public class KeelCronExpression {
         parseField(weekdayExpression, weekdayOptions, 0, 6);
     }
 
-    public boolean match(Calendar currentCalendar) {
-        // currentCalendar := Calendar.getInstance();
-        int minute = currentCalendar.get(Calendar.MINUTE);
-        int hour = currentCalendar.get(Calendar.HOUR_OF_DAY);
-        int day = currentCalendar.get(Calendar.DAY_OF_MONTH);
-        int month = 1 + currentCalendar.get(Calendar.MONTH);// make JAN 1, ...
-        int weekday = currentCalendar.get(Calendar.DAY_OF_WEEK) - 1; // make sunday 0, ...
-
-        return minuteOptions.contains(minute)
-                && hourOptions.contains(hour)
-                && dayOptions.contains(day)
-                && monthOptions.contains(month)
-                && weekdayOptions.contains(weekday);
+    public boolean match(@Nonnull Calendar currentCalendar) {
+        ParsedCalenderElements parsedCalenderElements = new ParsedCalenderElements(currentCalendar);
+        return match(parsedCalenderElements);
     }
 
-    private void parseField(String rawComponent, Set<Integer> optionSet, int min, int max) {
-//        System.out.println("parseField: " + rawComponent);
+    public boolean match(@Nonnull ParsedCalenderElements parsedCalenderElements) {
+        return minuteOptions.contains(parsedCalenderElements.minute)
+                && hourOptions.contains(parsedCalenderElements.hour)
+                && dayOptions.contains(parsedCalenderElements.day)
+                && monthOptions.contains(parsedCalenderElements.month)
+                && weekdayOptions.contains(parsedCalenderElements.weekday);
+    }
 
+    private void parseField(@Nonnull String rawComponent, @Nonnull Set<Integer> optionSet, int min, int max) {
         if (rawComponent.equals("*")) {
             for (int i = min; i <= max; i++) {
                 optionSet.add(i);
@@ -106,8 +104,33 @@ public class KeelCronExpression {
         }
     }
 
+    @Nonnull
     public String getRawCronExpression() {
         return rawCronExpression;
+    }
+
+    /**
+     * @since 3.2.4
+     */
+    public static class ParsedCalenderElements {
+        public final int minute;
+        public final int hour;
+        public final int day;
+        public final int month;
+        public final int weekday;
+
+        public ParsedCalenderElements(@Nonnull Calendar currentCalendar) {
+            minute = currentCalendar.get(Calendar.MINUTE);
+            hour = currentCalendar.get(Calendar.HOUR_OF_DAY);
+            day = currentCalendar.get(Calendar.DAY_OF_MONTH);
+            month = 1 + currentCalendar.get(Calendar.MONTH);// make JAN 1, ...
+            weekday = currentCalendar.get(Calendar.DAY_OF_WEEK) - 1; // make sunday 0, ...
+        }
+
+        @Override
+        public String toString() {
+            return minute + " " + hour + " " + day + " " + month + " " + weekday;
+        }
     }
 
     @Override

@@ -4,18 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vertxVersion>4.5.4</vertxVersion>
-        <commonmarkVersion>0.21.0</commonmarkVersion>
-        <jacksonVersion>2.15.3</jacksonVersion>
-        <poiVersion>5.2.5</poiVersion>
-    </properties>
-
     <groupId>io.github.sinri</groupId>
     <artifactId>Keel</artifactId>
-    <!--    <version>3.2.3-SNAPSHOT</version>-->
-    <version>3.2.3</version>
+    <version>3.2.4-SNAPSHOT</version>
+    <!--    <version>3.2.3</version>-->
 
     <name>Keel</name>
     <description>
@@ -43,6 +35,14 @@
             <organizationUrl>https://sinri.github.io</organizationUrl>
         </developer>
     </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <vertxVersion>4.5.4</vertxVersion>
+        <commonmarkVersion>0.21.0</commonmarkVersion>
+        <jacksonVersion>2.15.3</jacksonVersion>
+        <poiVersion>5.2.5</poiVersion>
+    </properties>
 
     <dependencies>
         <dependency>

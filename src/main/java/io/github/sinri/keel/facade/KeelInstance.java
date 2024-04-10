@@ -6,7 +6,10 @@ import io.github.sinri.keel.helper.KeelHelpersInterface;
 import io.github.sinri.keel.logger.KeelLogLevel;
 import io.github.sinri.keel.logger.event.KeelEventLogger;
 import io.github.sinri.keel.logger.issue.center.KeelIssueRecordCenter;
-import io.vertx.core.*;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 
 import javax.annotation.Nonnull;
@@ -130,7 +133,7 @@ public class KeelInstance implements KeelHelpersInterface, KeelClusterKit {
         return this;
     }
 
-    public Future<Void> gracefullyClose(@Nonnull Handler<Promise<Void>> promiseHandler) {
+    public Future<Void> gracefullyClose(@Nonnull io.vertx.core.Handler<Promise<Void>> promiseHandler) {
         Promise<Void> promise = Promise.promise();
         promiseHandler.handle(promise);
         return promise.future().compose(v -> getVertx().close());
