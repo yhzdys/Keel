@@ -2,6 +2,7 @@ package io.github.sinri.keel.mysql.condition;
 
 import io.github.sinri.keel.mysql.Quoter;
 import io.github.sinri.keel.mysql.exception.KeelSQLGenerateError;
+import io.github.sinri.keel.mysql.statement.AbstractReadStatement;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -205,6 +206,14 @@ public class AmongstCondition implements MySQLCondition {
     public AmongstCondition amongstExpressionList(@Nonnull List<String> values) {
         values.forEach(x -> this.amongstExpression(Objects.requireNonNull(x)));
         return this;
+    }
+
+    /**
+     * @param readStatement A READ Statement, such as SELECT.
+     * @since 3.2.4
+     */
+    public AmongstCondition amongstReadStatement(@Nonnull AbstractReadStatement readStatement) {
+        return this.amongstExpression(readStatement.toString());
     }
 
     /**
