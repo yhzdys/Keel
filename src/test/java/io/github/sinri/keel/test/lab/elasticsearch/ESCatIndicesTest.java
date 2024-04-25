@@ -1,5 +1,6 @@
 package io.github.sinri.keel.test.lab.elasticsearch;
 
+import io.github.sinri.keel.elasticsearch.ESApiMixin;
 import io.github.sinri.keel.elasticsearch.ElasticSearchKit;
 import io.github.sinri.keel.tesuto.KeelTest;
 import io.github.sinri.keel.tesuto.TestUnit;
@@ -21,11 +22,14 @@ public class ESCatIndicesTest extends KeelTest {
     @TestUnit
     public Future<Void> test() {
         // {"client_code":"ai-test","timestamp":1712023360984,"checksum":"d6abf7d98af34907d97f6a6578a429b5","http_method":"GET","endpoint":"/_cat/indices"}
+        ESApiMixin.ESApiQueries esApiQueries = new ESApiMixin.ESApiQueries();
+        //esApiQueries.put("format", "application/json");
         return new ElasticSearchKit("kumori")
                 .call(
                         HttpMethod.GET,
-                        "/_cat/indices",
-                        null,
+                        //"/_cat/indices",
+                        "/*",
+                        esApiQueries,
                         null
                 )
                 .compose(resp -> {
