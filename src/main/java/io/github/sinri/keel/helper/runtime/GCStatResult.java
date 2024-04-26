@@ -137,6 +137,8 @@ public class GCStatResult implements RuntimeStatResult<GCStatResult> {
         majorGCNames.add("G1 Old Generation");
         // ZGC (Z Garbage Collector)： "ZGC"
         minorGCNames.add("ZGC");
+        majorGCNames.add("ZGC Pauses"); // since 3.2.5
+        minorGCNames.add("ZGC Cycles"); // since 3.2.5
         // Shenandoah： "Shenandoah Pauses"
         minorGCNames.add("Shenandoah Pauses");
     }
