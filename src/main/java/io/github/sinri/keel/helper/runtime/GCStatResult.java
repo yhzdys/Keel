@@ -118,10 +118,12 @@ public class GCStatResult implements RuntimeStatResult<GCStatResult> {
 
     private static final Set<String> minorGCNames;
     private static final Set<String> majorGCNames;
+    private static final Set<String> ignoreGCNames;
 
     static {
         minorGCNames = new HashSet<>();
         majorGCNames = new HashSet<>();
+        ignoreGCNames = new HashSet<>();
 
         // Serial Collector： "Copy"（年轻代），"MarkSweepCompact"（老年代）
         minorGCNames.add("Copy");
@@ -136,9 +138,10 @@ public class GCStatResult implements RuntimeStatResult<GCStatResult> {
         minorGCNames.add("G1 Young Generation");
         majorGCNames.add("G1 Old Generation");
         // ZGC (Z Garbage Collector)： "ZGC"
-        minorGCNames.add("ZGC");
-        majorGCNames.add("ZGC Pauses"); // since 3.2.5
-        minorGCNames.add("ZGC Cycles"); // since 3.2.5
+        // @see  https://armsword.com/2023/08/10/es-jdk17-and-zgc/
+        //minorGCNames.add("ZGC");
+        ignoreGCNames.add("ZGC Pauses"); // since 3.2.5 统计的是ZGC在GC过程中暂停的次数及暂停时间，这是JDK17新增的指标bean，无法统计Allocation Stall导致的线程挂起时间
+        minorGCNames.add("ZGC Cycles"); // since 3.2.5 统计的是ZGC发生的次数以及总耗时
         // Shenandoah： "Shenandoah Pauses"
         minorGCNames.add("Shenandoah Pauses");
     }
@@ -157,7 +160,7 @@ public class GCStatResult implements RuntimeStatResult<GCStatResult> {
             if (gc.getCollectionTime() >= 0) {
                 this.addGCTimeAsOld(gc.getCollectionTime());
             }
-        } else {
+        } else if (!ignoreGCNames.contains(gc.getName())) {
             Keel.getLogger().error(log -> log
                     .message("Found Unknown GarbageCollectorMXBean Name")
                     .context(new JsonObject()
