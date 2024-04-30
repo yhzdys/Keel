@@ -119,6 +119,10 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
         return x.getValueAsInteger();
     }
 
+    /**
+     * This data source name would be used in MySQL client pool name.
+     * Use different name for actually different data sources.
+     */
     @Nonnull
     public String getDataSourceName() {
         return getName();
