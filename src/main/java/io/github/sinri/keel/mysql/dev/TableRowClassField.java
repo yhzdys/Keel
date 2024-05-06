@@ -163,12 +163,14 @@ class TableRowClassField {
             }
             code
                     .append("\tpublic ").append(looseEnum.looseEnumName()).append(" ").append(getter).append("() {\n")
-                    .append("\t\treturn ").append(looseEnum.looseEnumName()).append(".valueOf(\n")
-                    .append("\t\t\t")
-                    .append(nullable ? "" : "Objects.requireNonNull(")
-                    .append(readMethod).append("(\"").append(field).append("\")")
-                    .append(nullable ? "" : ")").append("\n")
-                    .append("\t\t);\n")
+                    .append("\t\t@Nullable String enumExpression=").append(readMethod).append("(\"").append(field).append("\");\n");
+            if (nullable) {
+                code.append("\t\tif (enumExpression==null) return null;\n");
+            } else {
+                code.append("\t\tObjects.requireNonNull(enumExpression,\"The Enum Field `").append(field).append("` should not be null!\");\n");
+            }
+            code
+                    .append("\t\treturn ").append(looseEnum.looseEnumName()).append(".valueOf(enumExpression);\n")
                     .append("\t}\n");
         } else if (strictEnum != null) {
             code.append("\t/*\n")
@@ -185,12 +187,14 @@ class TableRowClassField {
             }
             code
                     .append("\tpublic ").append(strictEnum.fullEnumRef()).append(" ").append(getter).append("() {\n")
-                    .append("\t\treturn ").append(strictEnum.fullEnumRef()).append(".valueOf(\n")
-                    .append("\t\t\t")
-                    .append(nullable ? "" : "Objects.requireNonNull(")
-                    .append(readMethod).append("(\"").append(field).append("\")")
-                    .append(nullable ? "" : ")").append("\n")
-                    .append("\t\t);\n")
+                    .append("\t\t@Nullable String enumExpression=").append(readMethod).append("(\"").append(field).append("\");\n");
+            if (nullable) {
+                code.append("\t\tif (enumExpression==null) return null;\n");
+            } else {
+                code.append("\t\tObjects.requireNonNull(enumExpression,\"The Enum Field `").append(field).append("` should not be null!\");\n");
+            }
+            code
+                    .append("\t\treturn ").append(strictEnum.fullEnumRef()).append(".valueOf(enumExpression);\n")
                     .append("\t}\n");
         } else {
             code.append("\t/*\n");
