@@ -16,6 +16,7 @@ class KeelEventLoggerImpl implements KeelEventLogger {
     private final @Nonnull KeelIssueRecorder<KeelEventLog> issueRecorder;
     private final @Nullable Handler<KeelEventLog> templateEventLogEditor;
     private final @Nonnull List<KeelEventLogger> bypassLoggers;
+    private @Nullable Handler<KeelEventLog> dynamicFormatter;
 
     KeelEventLoggerImpl(@Nonnull KeelIssueRecorder<KeelEventLog> issueRecorder, @Nullable Handler<KeelEventLog> templateEventLogEditor) {
         this.issueRecorder = issueRecorder;
@@ -27,6 +28,14 @@ class KeelEventLoggerImpl implements KeelEventLogger {
     @Override
     public Handler<KeelEventLog> templateEventLogEditor() {
         return templateEventLogEditor;
+    }
+
+    /**
+     * @since 3.2.7
+     */
+    @Override
+    public void setDynamicEventLogFormatter(@Nullable Handler<KeelEventLog> formatter) {
+        this.dynamicFormatter = formatter;
     }
 
     @Nonnull
@@ -64,22 +73,22 @@ class KeelEventLoggerImpl implements KeelEventLogger {
 
     @Override
     public void log(@Nonnull Handler<KeelEventLog> eventLogHandler) {
-        this.getIssueRecorder().record(r -> {
+        Handler<KeelEventLog> h = r -> {
             var x = templateEventLogEditor();
             if (x != null) {
                 x.handle(r);
             }
             eventLogHandler.handle(r);
-        });
+            // since 3.2.7
+            if (dynamicFormatter != null) {
+                dynamicFormatter.handle(r);
+            }
+        };
+
+        this.getIssueRecorder().record(h);
 
         getBypassLoggers().forEach(bypassLogger -> {
-            bypassLogger.log(r -> {
-                var x = templateEventLogEditor();
-                if (x != null) {
-                    x.handle(r);
-                }
-                eventLogHandler.handle(r);
-            });
+            bypassLogger.log(h);
         });
     }
 }

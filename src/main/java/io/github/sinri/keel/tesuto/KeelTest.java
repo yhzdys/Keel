@@ -32,6 +32,9 @@ abstract public class KeelTest {
         String calledClass = System.getProperty("sun.java.command");
 
         eventLogger = KeelIssueRecordCenter.outputCenter().generateEventLogger("KeelTest");
+        eventLogger.setDynamicEventLogFormatter(eventLog -> {
+            eventLog.classification("preparing");
+        });
 
         eventLogger.debug(r -> r.message("Keel Test Class: " + calledClass));
 
@@ -77,6 +80,9 @@ abstract public class KeelTest {
                     eventLogger.info(r -> r.message("RUNNING TEST UNITS..."));
 
                     return KeelAsyncKit.iterativelyCall(testUnits, testUnit -> {
+                                eventLogger.setDynamicEventLogFormatter(eventLogger -> {
+                                    eventLogger.classification(testUnit.getName());
+                                });
                                 return testUnit.runTest((KeelTest) testInstance)
                                         .compose(testUnitResult -> {
                                             testUnitResults.add(testUnitResult);
@@ -84,6 +90,9 @@ abstract public class KeelTest {
                                         });
                             })
                             .onComplete(vv -> {
+                                eventLogger.setDynamicEventLogFormatter(eventLogger -> {
+                                    eventLogger.classification("conclusion");
+                                });
                                 AtomicInteger totalNonSkippedRef = new AtomicInteger(0);
                                 testUnitResults.forEach(testUnitResult -> {
                                     if (testUnitResult.isSkipped()) {

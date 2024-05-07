@@ -32,6 +32,9 @@ class TestUnitWrapper {
                     } else {
                         return Future.succeededFuture()
                                 .compose(vv -> {
+//                                    testInstance.getLogger().setDynamicEventLogFormatter(keelEventLog -> {
+//                                        keelEventLog.classification(this.getName());
+//                                    });
                                     try {
                                         return (Future<?>) this.method.invoke(testInstance);
                                     } catch (Throwable e) {

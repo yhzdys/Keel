@@ -27,6 +27,11 @@ public interface KeelEventLogger {
     Handler<KeelEventLog> templateEventLogEditor();
 
     /**
+     * @since 3.2.7
+     */
+    void setDynamicEventLogFormatter(@Nullable Handler<KeelEventLog> formatter);
+
+    /**
      * @return Logs of this level or higher are visible.
      */
     @Nonnull
