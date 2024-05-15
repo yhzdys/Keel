@@ -18,8 +18,11 @@ import java.util.function.Supplier;
  */
 @TechnicalPreview(since = "3.1.10")
 public interface KeelIssueRecordCenter {
+    /**
+     * @since 3.2.7 Use a static singleton impl.
+     */
     static KeelIssueRecordCenter outputCenter() {
-        return new KeelIssueRecordCenterAsSync(SyncStdoutAdapter.getInstance());
+        return KeelIssueRecordCenterAsSync.getInstanceWithStdout();
     }
 
     static KeelIssueRecordCenter silentCenter() {

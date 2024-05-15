@@ -2,6 +2,7 @@ package io.github.sinri.keel.logger.issue.center;
 
 import io.github.sinri.keel.core.TechnicalPreview;
 import io.github.sinri.keel.logger.issue.recorder.adapter.KeelIssueRecorderAdapter;
+import io.github.sinri.keel.logger.issue.recorder.adapter.SyncStdoutAdapter;
 
 import javax.annotation.Nonnull;
 
@@ -20,5 +21,17 @@ public class KeelIssueRecordCenterAsSync implements KeelIssueRecordCenter {
     @Override
     public KeelIssueRecorderAdapter getAdapter() {
         return adapter;
+    }
+
+    /**
+     * @since 3.2.7
+     */
+    private static final KeelIssueRecordCenterAsSync outputCenter = new KeelIssueRecordCenterAsSync(SyncStdoutAdapter.getInstance());
+
+    /**
+     * @since 3.2.7
+     */
+    public static KeelIssueRecordCenter getInstanceWithStdout() {
+        return outputCenter;
     }
 }
