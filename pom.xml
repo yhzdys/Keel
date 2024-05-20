@@ -6,8 +6,8 @@
 
     <groupId>io.github.sinri</groupId>
     <artifactId>Keel</artifactId>
-    <version>3.2.7-SNAPSHOT</version>
-    <!--    <version>3.2.6</version>-->
+    <!--    <version>3.2.7-SNAPSHOT</version>-->
+    <version>3.2.7</version>
 
     <name>Keel</name>
     <description>
@@ -309,7 +309,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <version>1.6.13</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
