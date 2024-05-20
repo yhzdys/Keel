@@ -207,7 +207,7 @@ public class KeelCronWatchman extends KeelWatchmanImpl {
     }
 
     @Override
-    public void start() {
+    protected void startAsKeelVerticle() {
         Future.succeededFuture()
                 .compose(v -> cronTabUpdateStartup.apply(eventBusAddress()))
                 .onSuccess(v -> super.start())

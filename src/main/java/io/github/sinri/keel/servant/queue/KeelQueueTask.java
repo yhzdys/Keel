@@ -21,8 +21,8 @@ public abstract class KeelQueueTask extends KeelVerticleImplWithIssueRecorder<Qu
     @Nonnull
     abstract public String getTaskCategory();
 
-    // as verticle
-    public final void start() {
+    @Override
+    protected final void startAsKeelVerticle() {
         this.queueWorkerPoolManager.whenOneWorkerStarts();
 
         Future.succeededFuture()

@@ -48,7 +48,7 @@ abstract public class KeelIntravenousBase<T> extends KeelVerticleImplWithEventLo
     }
 
     @Override
-    public void start() {
+    protected void startAsKeelVerticle() {
         queueAcceptTask = true;
 
         int configuredBatchSize = getBatchSize();

@@ -32,8 +32,7 @@ public abstract class KeelSundial extends KeelVerticleImplWithEventLogger {
     }
 
     @Override
-
-    public void start() throws Exception {
+    protected void startAsKeelVerticle() {
         int delaySeconds = 61 - KeelCronExpression.parseCalenderToElements(Calendar.getInstance()).second;
         this.timerID = Keel.getVertx().setPeriodic(delaySeconds * 1000L, 60_000L, timerID -> {
             handleEveryMinute(Calendar.getInstance());

@@ -54,7 +54,8 @@ public abstract class KeelQueue extends KeelVerticleImplWithIssueRecorder<QueueM
      */
     abstract protected @Nonnull SignalReader getSignalReader();
 
-    public void start() {
+    @Override
+    protected void startAsKeelVerticle() {
         this.queueStatus = QueueStatus.RUNNING;
 
         try {

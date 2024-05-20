@@ -29,7 +29,7 @@ abstract class KeelWatchmanImpl extends KeelVerticleImplWithEventLogger implemen
     }
 
     @Override
-    public void start() {
+    protected void startAsKeelVerticle() {
         this.consumer = Keel.getVertx().eventBus().consumer(eventBusAddress());
         this.consumer.handler(this::consumeHandleMassage);
         this.consumer.exceptionHandler(throwable -> getLogger()

@@ -26,8 +26,7 @@ public class BlockingVerticlePlanB {
             }
 
             @Override
-            public void start() throws Exception {
-
+            protected void startAsKeelVerticle() {
                 getIssueRecorder().info(r -> r.message("in verticle " + deploymentID()));
                 blockCode.handle(promise);
 

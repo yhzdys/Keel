@@ -38,7 +38,7 @@ abstract public class KeelHttpServer extends KeelVerticleImplWithEventLogger {
     protected abstract void configureRoutes(Router router);
 
     @Override
-    public void start() throws Exception {
+    protected void startAsKeelVerticle() {
         this.server = Keel.getVertx().createHttpServer(getHttpServerOptions());
 
         Router router = Router.router(Keel.getVertx());

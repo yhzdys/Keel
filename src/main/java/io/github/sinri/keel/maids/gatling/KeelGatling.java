@@ -42,7 +42,7 @@ public class KeelGatling extends KeelVerticleImplWithEventLogger {
     }
 
     @Override
-    public void start() throws Exception {
+    protected void startAsKeelVerticle() {
         barrelUsed.set(0);
         KeelAsyncKit.repeatedlyCall(routineResult -> {
             return fireOnce();

@@ -10,7 +10,7 @@ public class TestMainVerticle extends KeelVerticleImplWithEventLogger {
 
 
     @Override
-    public void start() throws Exception {
+    protected void startAsKeelVerticle() {
         KeelAsyncKit.endless(() -> {
             getLogger().info(r -> r.message("X"));
             return Future.succeededFuture();

@@ -216,8 +216,9 @@ public interface KeelAsyncKit {
     static <T> Future<T> executeBlocking(@Nonnull Handler<Promise<T>> blockingCodeHandler) {
         Promise<T> promise = Promise.promise();
         KeelVerticle verticle = new KeelVerticleImplPure() {
+
             @Override
-            public void start() {
+            protected void startAsPureKeelVerticle() {
                 blockingCodeHandler.handle(promise);
                 promise.future().onComplete(ar -> this.undeployMe());
             }
