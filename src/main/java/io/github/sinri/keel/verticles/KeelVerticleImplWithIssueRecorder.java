@@ -24,11 +24,12 @@ abstract public class KeelVerticleImplWithIssueRecorder<T extends KeelIssueRecor
     @Override
     public final void start(Promise<Void> startPromise) {
         this.issueRecorder = buildIssueRecorder();
-        this.start();
+        startAsKeelVerticle(startPromise);
     }
 
     @Override
     public final void start() {
+        this.issueRecorder = buildIssueRecorder();
         this.startAsKeelVerticle();
     }
 

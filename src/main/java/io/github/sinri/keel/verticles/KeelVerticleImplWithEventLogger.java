@@ -27,12 +27,12 @@ abstract public class KeelVerticleImplWithEventLogger extends AbstractVerticle i
     @Override
     public final void start(Promise<Void> startPromise) {
         this.logger = buildEventLogger();
-        start();
-        startPromise.complete();
+        startAsKeelVerticle(startPromise);
     }
 
     @Override
     public final void start() {
+        this.logger = buildEventLogger();
         this.startAsKeelVerticle();
     }
 

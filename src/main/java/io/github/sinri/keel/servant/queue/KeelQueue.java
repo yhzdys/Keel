@@ -137,7 +137,9 @@ public abstract class KeelQueue extends KeelVerticleImplWithIssueRecorder<QueueM
                                 task.setQueueWorkerPoolManager(this.queueWorkerPoolManager);
 
                                 return Future.succeededFuture()
-                                        .compose(v -> task.deployMe(new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER)))
+                                        .compose(v -> task.deployMe(new DeploymentOptions()
+                                                .setThreadingModel(ThreadingModel.WORKER)
+                                        ))
                                         .compose(
                                                 deploymentID -> {
                                                     getIssueRecorder().info(r -> r.message("TASK [" + task.getTaskReference() + "] VERTICLE DEPLOYED: " + deploymentID));
