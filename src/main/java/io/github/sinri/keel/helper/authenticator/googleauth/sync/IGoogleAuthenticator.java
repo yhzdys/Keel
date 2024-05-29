@@ -30,6 +30,7 @@
 
 package io.github.sinri.keel.helper.authenticator.googleauth.sync;
 
+import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorException;
 import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorKey;
 
 /**
