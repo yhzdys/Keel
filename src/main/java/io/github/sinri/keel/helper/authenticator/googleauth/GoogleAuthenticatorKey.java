@@ -30,6 +30,8 @@
 
 package io.github.sinri.keel.helper.authenticator.googleauth;
 
+import io.github.sinri.keel.helper.authenticator.googleauth.sync.GoogleAuthenticator;
+
 import java.util.ArrayList;
 import java.util.List;
 

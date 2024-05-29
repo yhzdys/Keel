@@ -28,21 +28,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.github.sinri.keel.helper.authenticator.googleauth;
+package io.github.sinri.keel.helper.authenticator.googleauth.async;
+
+import io.vertx.core.Future;
 
 import java.util.List;
 
 /**
- * @author Enrico M. Crisosotomo
+ * @author Sinri Edogawa
+ * @since 3.2.9
  */
-public interface ICredentialRepository {
+public interface AsyncICredentialRepository {
     /**
      * This method retrieves the Base32-encoded private key of the given user.
      *
      * @param userName the user whose private key shall be retrieved.
      * @return the private key of the specified user.
      */
-    String getSecretKey(String userName);
+    Future<String> getSecretKey(String userName);
 
     /**
      * This method saves the user credentials.
@@ -52,8 +55,8 @@ public interface ICredentialRepository {
      * @param validationCode the validation code.
      * @param scratchCodes   the list of scratch codes.
      */
-    void saveUserCredentials(String userName,
-                             String secretKey,
-                             int validationCode,
-                             List<Integer> scratchCodes);
+    Future<Void> saveUserCredentials(String userName,
+                                     String secretKey,
+                                     int validationCode,
+                                     List<Integer> scratchCodes);
 }

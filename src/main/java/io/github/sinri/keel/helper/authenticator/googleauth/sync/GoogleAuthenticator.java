@@ -28,10 +28,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.github.sinri.keel.helper.authenticator.googleauth;
+package io.github.sinri.keel.helper.authenticator.googleauth.sync;
 
 //import org.apache.commons.codec.binary.Base32;
 //import org.apache.commons.codec.binary.Base64;
+
+import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorConfig;
+import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorException;
+import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorKey;
+import io.github.sinri.keel.helper.authenticator.googleauth.ReseedingSecureRandom;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

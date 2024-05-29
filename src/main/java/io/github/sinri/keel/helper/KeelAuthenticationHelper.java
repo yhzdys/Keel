@@ -1,7 +1,8 @@
 package io.github.sinri.keel.helper;
 
-import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticator;
 import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorConfig;
+import io.github.sinri.keel.helper.authenticator.googleauth.async.AsyncGoogleAuthenticator;
+import io.github.sinri.keel.helper.authenticator.googleauth.sync.GoogleAuthenticator;
 import io.github.sinri.keel.helper.encryption.bcrypt.BCrypt;
 import io.vertx.core.Handler;
 
@@ -58,6 +59,28 @@ public class KeelAuthenticationHelper {
             configBuildHandler.handle(configBuilder);
         }
         return new GoogleAuthenticator(configBuilder.build());
+    }
+
+    /**
+     * To create an instance of Google Authenticator with default config of window size 1.
+     *
+     * @since 3.2.9
+     */
+    public AsyncGoogleAuthenticator getAsyncGoogleAuthenticator() {
+        return getAsyncGoogleAuthenticator(configBuilder -> configBuilder.setWindowSize(1));
+    }
+
+    /**
+     * To create an instance of Google Authenticator with certain config,
+     *
+     * @since 3.2.9
+     */
+    public AsyncGoogleAuthenticator getAsyncGoogleAuthenticator(@Nullable Handler<GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder> configBuildHandler) {
+        var configBuilder = new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder();
+        if (configBuildHandler != null) {
+            configBuildHandler.handle(configBuilder);
+        }
+        return new AsyncGoogleAuthenticator(configBuilder.build());
     }
 
 //    public String createSecretForTOTP(GoogleAuthenticator googleAuthenticator) {
