@@ -6,6 +6,9 @@ import io.vertx.ext.auth.User;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.AuthenticationHandler;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Tell who the user is, if not a legal user, fail the request with RequestDenied.
  *
@@ -99,6 +102,10 @@ abstract public class KeelAuthenticationHandler implements AuthenticationHandler
         final boolean legal;
         final Throwable throwable;
         final int respondStatusCode;
+        /**
+         * @since 3.2.10 it became non-null.
+         */
+        @Nonnull
         final JsonObject principle;
 
 
@@ -106,10 +113,10 @@ abstract public class KeelAuthenticationHandler implements AuthenticationHandler
             this.legal = true;
             this.throwable = null;
             this.respondStatusCode = 401;
-            this.principle = null;
+            this.principle = new JsonObject();
         }
 
-        public AuthenticateResultImpl(JsonObject principle) {
+        public AuthenticateResultImpl(@Nonnull JsonObject principle) {
             this.legal = true;
             this.throwable = null;
             this.respondStatusCode = 401;
@@ -120,14 +127,14 @@ abstract public class KeelAuthenticationHandler implements AuthenticationHandler
             this.legal = false;
             this.throwable = throwable;
             this.respondStatusCode = 401;
-            this.principle = null;
+            this.principle = new JsonObject();
         }
 
         public AuthenticateResultImpl(int respondStatusCode, Throwable throwable) {
             this.legal = false;
             this.throwable = throwable;
             this.respondStatusCode = respondStatusCode;
-            this.principle = null;
+            this.principle = new JsonObject();
         }
 
         @Override
@@ -135,11 +142,13 @@ abstract public class KeelAuthenticationHandler implements AuthenticationHandler
             return legal;
         }
 
+        @Nullable
         @Override
         public Throwable failure() {
             return throwable;
         }
 
+        @Nonnull
         @Override
         public JsonObject authenticatedPrinciple() {
             return principle;

@@ -1,6 +1,7 @@
 package io.github.sinri.keel.test.lab.helper;
 
 import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorKey;
+import io.github.sinri.keel.helper.authenticator.googleauth.GoogleAuthenticatorQRGenerator;
 import io.github.sinri.keel.helper.authenticator.googleauth.async.AsyncGoogleAuthenticator;
 import io.github.sinri.keel.helper.authenticator.googleauth.async.AsyncICredentialRepository;
 import io.github.sinri.keel.tesuto.KeelTest;
@@ -74,12 +75,12 @@ public class GoogleTotpTest extends KeelTest {
                 });
     }
 
-    @TestUnit(skip = false)
+    @TestUnit(skip = true)
     public Future<Void> authNamedTotp() {
         asyncGoogleAuthenticator.setCredentialRepository(new CredentialRepositoryImpl());
 //        String key = "EHC5TIME4XL4ERZBTLWEZOK37KCHDO4J";
 //        int totpPassword = asyncGoogleAuthenticator.getTotpPassword(key);// or copy from Google Authenticator
-        return asyncGoogleAuthenticator.authorizeUser("testor", 430027)
+        return asyncGoogleAuthenticator.authorizeUser("testor", 265377)
                 .compose(ok -> {
                     if (ok) {
                         getLogger().info("AUTH OK");
@@ -89,6 +90,20 @@ public class GoogleTotpTest extends KeelTest {
                         return Future.failedFuture("AUTH FAILED");
                     }
                 });
+    }
+
+    @TestUnit(skip = false)
+    public Future<Void> qrForNamed() {
+        String otpAuthTotpURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL(
+                "Keel",
+                "testor",
+                new GoogleAuthenticatorKey.Builder("EHC5TIME4XL4ERZBTLWEZOK37KCHDO4J")
+                        .setScratchCodes(List.of(85453085, 24908943, 37457523, 99063161, 21235363))
+                        .setVerificationCode(408813)
+                        .build()
+        );
+        getLogger().info("otpAuthTotpURL: " + otpAuthTotpURL);
+        return Future.succeededFuture();
     }
 
     private static class CredentialRepositoryImpl implements AsyncICredentialRepository {

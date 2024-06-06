@@ -1,5 +1,9 @@
 package io.github.sinri.keel.facade.configuration;
 
+import io.vertx.config.ConfigRetriever;
+import io.vertx.config.ConfigRetrieverOptions;
+import io.vertx.config.ConfigStoreOptions;
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -12,6 +16,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
 
 
 public class KeelConfigElement {
@@ -50,6 +56,79 @@ public class KeelConfigElement {
         });
         return keelConfigElement;
     }
+
+    /**
+     * @since 3.2.10
+     */
+    public static Future<KeelConfigElement> retrieve(@Nonnull ConfigRetrieverOptions configRetrieverOptions) {
+//        ConfigRetrieverOptions configRetrieverOptions = new ConfigRetrieverOptions()
+//                .addStore(configStoreOptions);
+        ConfigRetriever configRetriever = ConfigRetriever.create(Keel.getVertx(), configRetrieverOptions);
+        return configRetriever.getConfig()
+                .compose(jsonObject -> {
+                    KeelConfigElement element = fromJsonObject(jsonObject);
+                    return Future.succeededFuture(element);
+                })
+                .andThen(ar -> {
+                    configRetriever.close();
+                });
+    }
+
+    public static ConfigStoreOptions buildConfigStoreOptionsForPropertiesFile(@Nonnull String file) {
+        return new ConfigStoreOptions()
+                .setType("file")
+                .setFormat("properties")
+                .setConfig(new JsonObject()
+                        .put("path", file)
+                );
+    }
+
+    public static ConfigStoreOptions buildConfigStoreOptionsForJsonObject(@Nonnull JsonObject jsonObject) {
+        return new ConfigStoreOptions()
+                .setType("json")
+                .setConfig(jsonObject);
+    }
+
+    public static ConfigStoreOptions buildConfigStoreOptionsForEnvironment(boolean useRawData, @Nullable List<String> envKeys) {
+        var x = new ConfigStoreOptions()
+                .setType("env");
+        var c = new JsonObject();
+        if (useRawData) {
+            c.put("raw-data", true);
+        }
+        if (envKeys != null) {
+            c.put("keys", new JsonArray(envKeys));
+        }
+        if (!c.isEmpty()) {
+            x.setConfig(c);
+        }
+        return x;
+    }
+
+    public static ConfigStoreOptions buildConfigStoreOptionsForSystemProperties(
+            boolean alwaysUseCache,
+            boolean useRawData,
+            boolean hierarchical
+    ) {
+        var x = new ConfigStoreOptions()
+                .setType("sys");
+        var c = new JsonObject();
+        if (!alwaysUseCache) {
+            c.put("cache", false);
+        }
+        if (useRawData) {
+            c.put("raw-data", true);
+        }
+        if (hierarchical) {
+            c.put("hierarchical", true);
+        }
+        if (!c.isEmpty()) {
+            x.setConfig(c);
+        }
+        return x;
+    }
+
+    // http, event bus, directory
 
     @Nonnull
     public String getName() {
