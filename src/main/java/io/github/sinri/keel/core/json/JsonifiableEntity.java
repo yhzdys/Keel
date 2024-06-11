@@ -117,4 +117,11 @@ public interface JsonifiableEntity<E> extends UnmodifiableJsonifiableEntity, Clu
     default boolean isEmpty() {
         return toJsonObject().isEmpty();
     }
+
+    /**
+     * @since 3.2.11
+     */
+    static SimpleJsonifiableEntity wrap(@Nonnull JsonObject jsonObject) {
+        return new SimpleJsonifiableEntity(jsonObject);
+    }
 }
