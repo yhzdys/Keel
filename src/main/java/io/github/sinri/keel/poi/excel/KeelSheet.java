@@ -1,10 +1,9 @@
 package io.github.sinri.keel.poi.excel;
 
+import io.github.sinri.keel.core.TechnicalPreview;
 import io.github.sinri.keel.core.ValueBox;
 import io.github.sinri.keel.facade.async.KeelAsyncKit;
-import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrix;
-import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrixRowTemplate;
-import io.github.sinri.keel.poi.excel.entity.KeelSheetTemplatedMatrix;
+import io.github.sinri.keel.poi.excel.entity.*;
 import io.vertx.core.Future;
 import org.apache.poi.ss.usermodel.*;
 
@@ -39,16 +38,6 @@ public class KeelSheet {
     }
 
     /**
-     * Load sheet with formula evaluator, cached or evaluated.
-     * @since 3.1.3
-     */
-    @Deprecated(since = "3.1.3", forRemoval = true)
-    public KeelSheet(@Nonnull Sheet sheet, @Nullable FormulaEvaluator formulaEvaluator) {
-        this.sheet = sheet;
-        this.formulaEvaluatorBox = new ValueBox<>(formulaEvaluator);
-    }
-
-    /**
      * Load sheet with 3 kinds of cell formula evaluator: None, Cached, and Evaluate.
      *
      * @since 3.1.4
@@ -80,14 +69,6 @@ public class KeelSheet {
             }
         }
         return i;
-    }
-
-    public String getName() {
-        return sheet.getSheetName();
-    }
-
-    public Row readRow(int i) {
-        return getSheet().getRow(i);
     }
 
     /**
@@ -143,10 +124,6 @@ public class KeelSheet {
         return Objects.requireNonNull(s);
     }
 
-    public Iterator<Row> getRowIterator() {
-        return getSheet().rowIterator();
-    }
-
     /**
      * @param sheetRowFilter added since 3.0.20
      * @since 3.0.20 add SheetRowFilter, and may return null if the row should be thrown.
@@ -173,6 +150,18 @@ public class KeelSheet {
         }
 
         return rowDatum;
+    }
+
+    public String getName() {
+        return sheet.getSheetName();
+    }
+
+    public Row readRow(int i) {
+        return sheet.getRow(i);
+    }
+
+    public Iterator<Row> getRowIterator() {
+        return sheet.rowIterator();
     }
 
     /**
@@ -534,5 +523,48 @@ public class KeelSheet {
 
             cell.setCellValue(cellDatum);
         }
+    }
+
+    /**
+     * @since 3.2.11
+     */
+    @TechnicalPreview(since = "3.2.11")
+    public Iterator<KeelSheetMatrixRow> getMatrixRowIterator(int maxColumns, @Nullable SheetRowFilter sheetRowFilter) {
+        Iterator<List<String>> rawRowIterator = this.getRawRowIterator(maxColumns, sheetRowFilter);
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return rawRowIterator.hasNext();
+            }
+
+            @Override
+            public KeelSheetMatrixRow next() {
+                return new KeelSheetMatrixRow(rawRowIterator.next());
+            }
+        };
+
+    }
+
+    /**
+     * @since 3.2.11
+     */
+    @TechnicalPreview(since = "3.2.11")
+    public Iterator<KeelSheetMatrixTemplatedRow> getTemplatedMatrixRowIterator(
+            @Nonnull KeelSheetMatrixRowTemplate template,
+            int maxColumns,
+            @Nullable SheetRowFilter sheetRowFilter
+    ) {
+        Iterator<List<String>> rawRowIterator = this.getRawRowIterator(maxColumns, sheetRowFilter);
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return rawRowIterator.hasNext();
+            }
+
+            @Override
+            public KeelSheetMatrixTemplatedRow next() {
+                return KeelSheetMatrixTemplatedRow.create(template, rawRowIterator.next());
+            }
+        };
     }
 }

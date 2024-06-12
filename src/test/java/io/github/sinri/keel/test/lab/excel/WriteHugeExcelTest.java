@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WriteHugeExcelTest extends KeelTest {
-    private static final String file = "/Users/leqee/code/Keel/src/test/resources/excel/excel_3.xlsx";
+    private static final String file = "/Users/sinri/code/keel/src/test/resources/runtime/huge.xlsx";
 
 
     @Nonnull
@@ -43,7 +43,7 @@ public class WriteHugeExcelTest extends KeelTest {
         return Future.succeededFuture();
     }
 
-    @TestUnit
+    @TestUnit(skip = true)
     public Future<Void> testWriteNotStream() {
         KeelSheets sheets = new KeelSheets();
         KeelSheet sheet = sheets.generateWriterForSheet("Huge");

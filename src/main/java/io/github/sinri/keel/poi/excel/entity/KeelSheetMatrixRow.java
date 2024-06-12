@@ -12,7 +12,7 @@ import java.util.List;
  * @since 3.0.18 Finished Technical Preview.
  * @since 3.1.1 Use BigDecimal to handle the number value of cells.
  */
-abstract public class KeelSheetMatrixRow {
+public class KeelSheetMatrixRow {
     private final List<String> rawRow;
 
     public KeelSheetMatrixRow(List<String> rawRow) {

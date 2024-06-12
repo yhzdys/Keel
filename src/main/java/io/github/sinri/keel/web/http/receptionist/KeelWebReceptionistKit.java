@@ -8,7 +8,6 @@ import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.*;
-import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -53,9 +52,15 @@ public class KeelWebReceptionistKit<R extends KeelWebReceptionist> {
         this.router = router;
     }
 
+    /**
+     * Note: MAIN and TEST scopes are seperated.
+     *
+     * @param packageName the name of the package where the classes extending `R` are.
+     * @since 3.2.11 Removed org.reflections:reflections, now self-implemented.
+     */
     public void loadPackage(String packageName) {
-        Reflections reflections = new Reflections(packageName);
-        Set<Class<? extends R>> allClasses = reflections.getSubTypesOf(classOfReceptionist);
+        Set<Class<? extends R>> allClasses = Keel.reflectionHelper()
+                .seekClassDescendantsInPackage(packageName, classOfReceptionist);
 
         try {
             allClasses.forEach(this::loadClass);

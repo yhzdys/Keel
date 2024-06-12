@@ -10,9 +10,8 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.security.CodeSource;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -37,12 +36,15 @@ public class KeelFileHelper {
             return Files.readAllBytes(Path.of(filePath));
         } catch (IOException e) {
             if (seekInsideJarWhenNotFound) {
-                InputStream resourceAsStream = KeelFileHelper.class.getClassLoader().getResourceAsStream(filePath);
-                if (resourceAsStream == null) {
-                    // not found resource
-                    throw new IOException("file also not in jar", e);
+                try (
+                        InputStream resourceAsStream = KeelFileHelper.class.getClassLoader().getResourceAsStream(filePath)
+                ) {
+                    if (resourceAsStream == null) {
+                        // not found resource
+                        throw new IOException("file also not in jar", e);
+                    }
+                    return resourceAsStream.readAllBytes();
                 }
-                return resourceAsStream.readAllBytes();
 
 //                URL resource = KeelOptions.class.getClassLoader().getResource(filePath);
 //                if (resource == null) {
@@ -115,5 +117,76 @@ public class KeelFileHelper {
      */
     public Future<String> crateTempFile(@Nullable String prefix, @Nullable String suffix) {
         return Keel.getVertx().fileSystem().createTempFile(prefix, suffix);
+    }
+
+    /**
+     * @since 3.2.11
+     * Check if this process is running with JAR file.
+     */
+    public boolean isRunningFromJAR() {
+        CodeSource src = this.getClass().getProtectionDomain().getCodeSource();
+        if (src == null) {
+            throw new RuntimeException();
+        }
+        URL location = src.getLocation();
+        if (location == null) {
+            throw new RuntimeException();
+        }
+        // System.out.println("src.getLocation: "+location.toString());
+        return location.toString().endsWith(".jar");
+
+//        ZipInputStream zip = new ZipInputStream(jar.openStream());
+//        while (true) {
+//            ZipEntry e = zip.getNextEntry();
+//            if (e == null)
+//                break;
+//            String name = e.getName();
+//            if (name.startsWith("path/to/your/dir/")) {
+//                /* Do something with this entry. */
+//            }
+//        }
+    }
+
+    /**
+     * The in-class classes, i.e. subclasses, would be neglected.
+     *
+     * @since 3.2.11
+     */
+    public Set<String> seekPackageClassFilesInJar(@Nonnull String packageName) {
+        Set<String> classes = new HashSet<>();
+        // Get the current class's class loader
+        ClassLoader classLoader = this.getClass().getClassLoader();
+
+        // Get the URL of the JAR file containing the current class
+        URL jarUrl = classLoader.getResource(getClass().getName().replace('.', '/') + ".class");
+
+        if (jarUrl != null && jarUrl.getProtocol().equals("jar")) {
+            // Extract the JAR file path
+            String jarPath = jarUrl.getPath().substring(5, jarUrl.getPath().indexOf("!"));
+
+            // Open the JAR file
+            try (JarFile jarFile = new JarFile(jarPath)) {
+                // Iterate through the entries of the JAR file
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
+
+                    // Check if the entry is a class
+                    if (entryName.endsWith(".class")) {
+                        // Convert the entry name to a fully qualified class name
+                        String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
+                        //System.out.println(className);
+                        if (className.startsWith(packageName + ".") && !className.contains("$")) {
+                            classes.add(className);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                Keel.getLogger().exception(e);
+            }
+        }
+
+        return classes;
     }
 }

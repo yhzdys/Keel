@@ -10,22 +10,24 @@ A Java framework with VERT.X eco, for projects for web, job and more.
 <dependency>
     <groupId>io.github.sinri</groupId>
     <artifactId>Keel</artifactId>
-  <version>3.2.6</version>
+  <version>3.2.11</version>
 </dependency>
 ```
 
 ## Third Party Integration
 
-* [Vert.x](https://vertx.io) 4.5.4
+* [Vert.x](https://vertx.io) 4.5.8
 * [org.commonmark:commonmark](https://github.com/commonmark/commonmark-java) ![GitHub](https://img.shields.io/github/license/commonmark/commonmark-java)
   0.21.0
-* [org.reflections:reflections](https://github.com/ronmamo/reflections) ![GitHub](https://img.shields.io/github/license/ronmamo/reflections)
-  0.10.2
+* [<del>org.reflections:reflections</del>](https://github.com/ronmamo/reflections) ![GitHub](https://img.shields.io/github/license/ronmamo/reflections)
+  <del> 0.10.2 REMOVED SINCE 3.2.11 </del>
 * [com.warrenstrange:googleauth](https://github.com/wstrange/GoogleAuth) ![GitHub](https://img.shields.io/github/license/wstrange/GoogleAuth)
 * [com.github.oshi:oshi-core](https://github.com/oshi/oshi) ![GitHub](https://img.shields.io/github/license/oshi/oshi)
-  6.4.0
+  6.4.9
 * [org.apache.poi:poi](https://github.com/apache/poi) ![GitHub](https://img.shields.io/github/license/apache/poi)
   5.2.5
+* [com.github.pjfanning:excel-streaming-reader](https://github.com/pjfanning/excel-streaming-reader) ![GitHub](https://img.shields.io/github/license/pjfanning/excel-streaming-reader)
+  4.3.1
 
 ## Dry Dock of Keel
 
@@ -53,7 +55,8 @@ Keel: https://github.com/sinri/DryDockLession :)
 
 * The `KeelHelpers` becomes a static member of class `KeelHelpersInterface`.
 * The `Keel` becomes a static member of class `KeelInstance` as its instance. Originally it was a class.
-  * The `Keel` now also inherits the class `KeelHelpersInterface`. So you may not need `KeelHelpers` while `Keel` used.
+  * The `Keel` now also inherits the class `KeelHelpersInterface`. So you may not need `KeelHelpers` while `Keel`
+    used.
 * MySQL
   * Data source should be defined as `NamedMySQLDataSource`.
   * The raw `SqlConnection` instance should be used in a defined `NamedMySQLConnection`.

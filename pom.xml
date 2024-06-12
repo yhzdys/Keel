@@ -7,7 +7,7 @@
     <groupId>io.github.sinri</groupId>
     <artifactId>Keel</artifactId>
     <version>3.2.11-SNAPSHOT</version>
-    <!--    <version>3.2.10</version>-->
+    <!--    <version>3.2.11</version>-->
 
     <name>Keel</name>
     <description>
@@ -38,10 +38,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vertxVersion>4.5.7</vertxVersion>
+        <vertxVersion>4.5.8</vertxVersion>
         <commonmarkVersion>0.21.0</commonmarkVersion>
-        <jacksonVersion>2.15.3</jacksonVersion>
+        <jacksonVersion>2.16.1</jacksonVersion>
         <poiVersion>5.2.5</poiVersion>
+        <excelStreamingReader>4.3.1</excelStreamingReader>
+        <oshiCoreVersion>6.4.9</oshiCoreVersion>
     </properties>
 
     <dependencies>
@@ -119,10 +121,16 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jacksonVersion}</version>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.reflections</groupId>-->
+        <!--            <artifactId>reflections</artifactId>-->
+        <!--            <version>0.10.2</version>-->
+        <!--        </dependency>-->
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -138,7 +146,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.4.9</version>
+            <version>${oshiCoreVersion}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -164,6 +172,11 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml-full</artifactId>
             <version>${poiVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.pjfanning</groupId>
+            <artifactId>excel-streaming-reader</artifactId>
+            <version>${excelStreamingReader}</version>
         </dependency>
     </dependencies>
 

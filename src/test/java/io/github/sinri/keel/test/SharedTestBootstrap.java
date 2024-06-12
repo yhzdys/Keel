@@ -1,5 +1,6 @@
 package io.github.sinri.keel.test;
 
+import io.github.sinri.keel.logger.KeelLogLevel;
 import io.github.sinri.keel.logger.issue.center.KeelIssueRecordCenter;
 import io.vertx.core.Handler;
 import io.vertx.core.VertxOptions;
@@ -22,7 +23,10 @@ public class SharedTestBootstrap {
                         .setMaxEventLoopExecuteTime(2000000000L)//default 2000000000 ns = 2s
                         .setMaxEventLoopExecuteTimeUnit(TimeUnit.NANOSECONDS)
                 )
-                .onSuccess(handler)
+                .onSuccess(v -> {
+                    Keel.getLogger().setVisibleLevel(KeelLogLevel.DEBUG);
+                    handler.handle(null);
+                })
                 .onFailure(throwable -> {
                     KeelIssueRecordCenter.outputCenter().generateEventLogger("SharedTestBootstrap")
                             .exception(throwable, "Keel Initialize Failure");

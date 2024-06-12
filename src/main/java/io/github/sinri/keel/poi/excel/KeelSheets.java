@@ -58,62 +58,104 @@ public class KeelSheets implements AutoCloseable {
     }
 
     /**
+     * @since 3.2.11
+     */
+    public static KeelSheets openFile(@Nonnull FileAccessOptions fileAccessOptions) {
+        try {
+            if (fileAccessOptions.isUseStreamReading()) {
+
+                if (fileAccessOptions.getInputStream() != null) {
+                    return new KeelSheets(fileAccessOptions.getStreamingReaderBuilder()
+                            .open(fileAccessOptions.getInputStream())
+                    );
+                } else if (fileAccessOptions.getFile() != null) {
+                    return new KeelSheets(fileAccessOptions.getStreamingReaderBuilder()
+                            .open(fileAccessOptions.getFile())
+                    );
+                }
+            } else {
+                if (fileAccessOptions.getInputStream() != null) {
+                    return new KeelSheets(WorkbookFactory.create(
+                            fileAccessOptions.getFile()),
+                            fileAccessOptions.isWithFormulaEvaluator()
+                    );
+                } else if (fileAccessOptions.getFile() != null) {
+                    return new KeelSheets(WorkbookFactory.create(
+                            fileAccessOptions.getFile()),
+                            fileAccessOptions.isWithFormulaEvaluator()
+                    );
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException("No input source!");
+    }
+
+    /**
      * @since 3.0.20
      */
+    @Deprecated(since = "3.2.11")
     public static KeelSheets factory(@Nonnull String file) {
-        return factory(file, false);
+        return openFile(new FileAccessOptions()
+                .setFile(file)
+                .setWithFormulaEvaluator(false)
+        );
     }
 
     /**
-     * @param file
-     * @param withFormulaEvaluator
-     * @return
      * @since 3.1.4
      */
+    @Deprecated(since = "3.2.11")
     public static KeelSheets factory(@Nonnull String file, boolean withFormulaEvaluator) {
-        return factory(new File(file), withFormulaEvaluator);
+        return openFile(new FileAccessOptions()
+                .setFile(file)
+                .setWithFormulaEvaluator(withFormulaEvaluator)
+        );
     }
 
     /**
      * @since 3.0.20
      */
+    @Deprecated(since = "3.2.11")
     public static KeelSheets factory(@Nonnull File file) {
-        return factory(file, false);
+        return openFile(new FileAccessOptions()
+                .setFile(file)
+                .setWithFormulaEvaluator(false)
+        );
     }
 
     /**
-     * @param file
-     * @param withFormulaEvaluator
-     * @return
      * @since 3.1.4
      */
+    @Deprecated(since = "3.2.11")
     public static KeelSheets factory(@Nonnull File file, boolean withFormulaEvaluator) {
-        try {
-            return new KeelSheets(WorkbookFactory.create(file), withFormulaEvaluator);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return openFile(new FileAccessOptions()
+                .setFile(file)
+                .setWithFormulaEvaluator(withFormulaEvaluator)
+        );
     }
 
     /**
      * @since 3.0.20
      */
+    @Deprecated(since = "3.2.11")
     public static KeelSheets factory(@Nonnull InputStream inputStream) {
-        return factory(inputStream, false);
+        return openFile(new FileAccessOptions()
+                .setInputStream(inputStream)
+                .setWithFormulaEvaluator(false)
+        );
     }
 
     /**
-     * @param inputStream
-     * @param withFormulaEvaluator
-     * @return
      * @since 3.1.4
      */
+    @Deprecated(since = "3.2.11")
     public static KeelSheets factory(@Nonnull InputStream inputStream, boolean withFormulaEvaluator) {
-        try {
-            return new KeelSheets(WorkbookFactory.create(inputStream), withFormulaEvaluator);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return openFile(new FileAccessOptions()
+                .setInputStream(inputStream)
+                .setWithFormulaEvaluator(withFormulaEvaluator)
+        );
     }
 
     /**
@@ -124,9 +166,6 @@ public class KeelSheets implements AutoCloseable {
     }
 
     /**
-     * @param inputStream
-     * @param withFormulaEvaluator
-     * @return
      * @since 3.1.4
      */
     public static KeelSheets autoGenerate(@Nonnull InputStream inputStream, boolean withFormulaEvaluator) {
