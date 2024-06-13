@@ -9,7 +9,8 @@ import io.vertx.ext.web.RoutingContext;
 
 import javax.annotation.Nonnull;
 
-@ApiMeta(routePath = "/receptionist/test", allowMethods = {"GET", "POST"})
+@ApiMeta(routePath = "/receptionist/test-for-get", allowMethods = {"GET"})
+@ApiMeta(routePath = "/receptionist/test-for-post", allowMethods = {"POST"})
 public class TestReceptionist extends KeelWebFutureReceptionist {
     public TestReceptionist(RoutingContext routingContext) {
         super(routingContext);

@@ -4,13 +4,16 @@ import io.github.sinri.keel.web.http.ApiMeta;
 import io.github.sinri.keel.web.http.prehandler.KeelPlatformHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.*;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -70,10 +73,29 @@ public class KeelWebReceptionistKit<R extends KeelWebReceptionist> {
     }
 
     public void loadClass(Class<? extends R> c) {
-        ApiMeta apiMeta = KeelHelpers.reflectionHelper().getAnnotationOfClass(c, ApiMeta.class);
-        if (apiMeta == null) return;
+        ApiMeta[] apiMetaArray = KeelHelpers.reflectionHelper().getAnnotationsOfClass(c, ApiMeta.class);
+        for (var apiMeta : apiMetaArray) {
+            loadClass(c, apiMeta);
+        }
+    }
 
-        Keel.getLogger().debug(r -> r.classification(getClass().getName(), "loadClass").message("Loading " + c.getName()));
+    private void loadClass(Class<? extends R> c, @Nonnull ApiMeta apiMeta) {
+        Keel.getLogger().info(r -> r
+                .classification(getClass().getName(), "loadClass")
+                .message("Loading " + c.getName())
+                .context(j -> {
+                    JsonArray methods = new JsonArray();
+                    Arrays.stream(apiMeta.allowMethods()).forEach(methods::add);
+                    j.put("allowMethods", methods);
+                    j.put("routePath", apiMeta.routePath());
+                    if (apiMeta.isDeprecated()) {
+                        j.put("isDeprecated", true);
+                    }
+                    if (apiMeta.remark() != null && !apiMeta.remark().isEmpty()) {
+                        j.put("remark", apiMeta.remark());
+                    }
+                })
+        );
 
         Constructor<? extends R> receptionistConstructor;
         try {

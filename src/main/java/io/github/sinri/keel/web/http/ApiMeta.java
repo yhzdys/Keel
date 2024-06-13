@@ -1,11 +1,14 @@
 package io.github.sinri.keel.web.http;
 
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * @since 2.0
+ * @since 3.2.12 it is repeatable now!
  */
+@Repeatable(ApiMetaContainer.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApiMeta {
     String virtualHost() default "";
@@ -35,4 +38,15 @@ public @interface ApiMeta {
      * @since 2.9
      */
     String corsOriginPattern() default "";
+
+    /**
+     * @return It this path deprecated.
+     * @since 3.2.11
+     */
+    boolean isDeprecated() default false;
+
+    /**
+     * @since 3.2.11
+     */
+    String remark() default "";
 }
