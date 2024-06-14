@@ -1,5 +1,8 @@
 package io.github.sinri.keel.web.http;
 
+import io.github.sinri.keel.core.TechnicalPreview;
+import io.github.sinri.keel.web.http.prehandler.PreHandlerChain;
+
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -49,4 +52,10 @@ public @interface ApiMeta {
      * @since 3.2.11
      */
     String remark() default "";
+
+    /**
+     * @since 3.2.13
+     */
+    @TechnicalPreview(since = "3.2.13")
+    Class<? extends PreHandlerChain> preHandlerChain() default PreHandlerChain.class;
 }

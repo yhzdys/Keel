@@ -1,0 +1,110 @@
+package io.github.sinri.keel.web.http.receptionist;
+
+import io.github.sinri.keel.core.TechnicalPreview;
+import io.github.sinri.keel.web.http.ApiMeta;
+import io.github.sinri.keel.web.http.prehandler.PreHandlerChain;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
+import io.vertx.ext.web.Route;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Set;
+
+import static io.github.sinri.keel.facade.KeelInstance.Keel;
+import static io.github.sinri.keel.helper.KeelHelpersInterface.KeelHelpers;
+
+/**
+ * @since 3.2.13
+ */
+@TechnicalPreview(since = "3.2.13")
+public class KeelWebReceptionistLoader {
+    /**
+     * Note: MAIN and TEST scopes are seperated.
+     *
+     * @param packageName the name of the package where the classes extending `R` are.
+     */
+    public static <R extends KeelWebReceptionist> void loadPackage(Router router, String packageName, Class<R> classOfReceptionist) {
+        Set<Class<? extends R>> allClasses = Keel.reflectionHelper()
+                .seekClassDescendantsInPackage(packageName, classOfReceptionist);
+
+        try {
+            allClasses.forEach(c -> loadClass(router, c));
+        } catch (Exception e) {
+            Keel.getLogger().exception(e, r -> r.classification("KeelWebReceptionistLoader", "loadPackage"));
+        }
+    }
+
+    public static <R extends KeelWebReceptionist> void loadClass(Router router, Class<? extends R> c) {
+        ApiMeta[] apiMetaArray = KeelHelpers.reflectionHelper().getAnnotationsOfClass(c, ApiMeta.class);
+        for (var apiMeta : apiMetaArray) {
+            loadClass(router, c, apiMeta);
+        }
+    }
+
+    private static <R extends KeelWebReceptionist> void loadClass(Router router, Class<? extends R> c, ApiMeta apiMeta) {
+        Keel.getLogger().info(r -> r
+                .classification("KeelWebReceptionistLoader", "loadClass")
+                .message("Loading " + c.getName())
+                .context(j -> {
+                    JsonArray methods = new JsonArray();
+                    Arrays.stream(apiMeta.allowMethods()).forEach(methods::add);
+                    j.put("allowMethods", methods);
+                    j.put("routePath", apiMeta.routePath());
+                    if (apiMeta.isDeprecated()) {
+                        j.put("isDeprecated", true);
+                    }
+                    if (apiMeta.remark() != null && !apiMeta.remark().isEmpty()) {
+                        j.put("remark", apiMeta.remark());
+                    }
+                })
+        );
+
+        Constructor<? extends R> receptionistConstructor;
+        try {
+            receptionistConstructor = c.getConstructor(RoutingContext.class);
+        } catch (NoSuchMethodException e) {
+            Keel.getLogger().exception(e, r -> r.classification("KeelWebReceptionistLoader", "loadClass").message("HANDLER REFLECTION EXCEPTION"));
+            return;
+        }
+
+        Route route = router.route(apiMeta.routePath());
+
+        if (apiMeta.allowMethods() != null) {
+            for (var methodName : apiMeta.allowMethods()) {
+                route.method(HttpMethod.valueOf(methodName));
+            }
+        }
+
+        if (apiMeta.virtualHost() != null && !apiMeta.virtualHost().isEmpty()) {
+            route.virtualHost(apiMeta.virtualHost());
+        }
+
+        try {
+            Constructor<? extends PreHandlerChain> preHandlerChainConstructor = apiMeta.preHandlerChain().getConstructor();
+            PreHandlerChain preHandlerChain = preHandlerChainConstructor.newInstance();
+            preHandlerChain.executeHandlers(route, apiMeta);
+        } catch (Throwable e) {
+            Keel.getLogger().exception(e, r -> r.classification("KeelWebReceptionistLoader", "loadClass").message("PreHandlerChain REFLECTION EXCEPTION"));
+            return;
+        }
+
+        // finally!
+        route.handler(routingContext -> {
+            try {
+                R receptionist = receptionistConstructor.newInstance(routingContext);
+                receptionist.handle();
+            } catch (Throwable e) {
+                routingContext.fail(e);
+            }
+        });
+
+    }
+
+//    public static void main(String[] args) {
+//        Router router=Router.router(Keel.getVertx());
+//        KeelWebReceptionistLoader.loadPackage(router,"a,b",KeelWebFutureReceptionist.class);
+//    }
+}

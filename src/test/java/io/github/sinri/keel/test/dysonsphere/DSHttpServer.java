@@ -3,7 +3,7 @@ package io.github.sinri.keel.test.dysonsphere;
 import io.github.sinri.keel.web.http.KeelHttpServer;
 import io.github.sinri.keel.web.http.fastdocs.KeelFastDocsKit;
 import io.github.sinri.keel.web.http.receptionist.KeelWebReceptionist;
-import io.github.sinri.keel.web.http.receptionist.KeelWebReceptionistKit;
+import io.github.sinri.keel.web.http.receptionist.KeelWebReceptionistLoader;
 import io.vertx.ext.web.Router;
 
 public class DSHttpServer extends KeelHttpServer {
@@ -17,7 +17,13 @@ public class DSHttpServer extends KeelHttpServer {
                 "Copyright 2022 Sinri Edogawa"
         );
 
-        new KeelWebReceptionistKit<KeelWebReceptionist>(KeelWebReceptionist.class, router)
-                .loadPackage("io.github.sinri.keel.test.dysonsphere.receptionist");
+//        new KeelWebReceptionistKit<KeelWebReceptionist>(KeelWebReceptionist.class, router)
+//                .loadPackage("io.github.sinri.keel.test.dysonsphere.receptionist");
+
+        KeelWebReceptionistLoader.loadPackage(
+                router,
+                "io.github.sinri.keel.test.dysonsphere.receptionist",
+                KeelWebReceptionist.class
+        );
     }
 }
