@@ -2,6 +2,7 @@ package io.github.sinri.keel.web.http.receptionist;
 
 import io.github.sinri.keel.core.TechnicalPreview;
 import io.github.sinri.keel.web.http.ApiMeta;
+import io.github.sinri.keel.web.http.PreHandlerChainMeta;
 import io.github.sinri.keel.web.http.prehandler.PreHandlerChain;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
@@ -12,6 +13,7 @@ import io.vertx.ext.web.RoutingContext;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.sinri.keel.facade.KeelInstance.Keel;
 import static io.github.sinri.keel.helper.KeelHelpersInterface.KeelHelpers;
@@ -82,14 +84,46 @@ public class KeelWebReceptionistLoader {
             route.virtualHost(apiMeta.virtualHost());
         }
 
-        try {
-            Constructor<? extends PreHandlerChain> preHandlerChainConstructor = apiMeta.preHandlerChain().getConstructor();
-            PreHandlerChain preHandlerChain = preHandlerChainConstructor.newInstance();
-            preHandlerChain.executeHandlers(route, apiMeta);
-        } catch (Throwable e) {
-            Keel.getLogger().exception(e, r -> r.classification("KeelWebReceptionistLoader", "loadClass").message("PreHandlerChain REFLECTION EXCEPTION"));
-            return;
+        AtomicReference<Class<?>> classRef = new AtomicReference<>(c);
+
+        PreHandlerChain preHandlerChain = null;
+
+        while (true) {
+            Class<?> child = classRef.get();
+            if (child == null) {
+                break;
+            }
+            if (child == KeelWebReceptionist.class) {
+                break;
+            }
+            PreHandlerChainMeta annotation = child.getAnnotation(PreHandlerChainMeta.class);
+            if (annotation != null) {
+                Class<? extends PreHandlerChain> preHandlerChainClass = annotation.value();
+                try {
+                    preHandlerChain = preHandlerChainClass.getConstructor().newInstance();
+                } catch (Throwable e) {
+                    Keel.getLogger().exception(e, r -> r.classification("KeelWebReceptionistLoader", "loadClass").message("PreHandlerChain REFLECTION EXCEPTION"));
+                    return;
+                }
+                break;
+            }
+
+            Class<?> superclass = child.getSuperclass();
+            classRef.set(superclass);
         }
+
+//        try {
+//            Constructor<? extends PreHandlerChain> preHandlerChainConstructor = apiMeta.preHandlerChain().getConstructor();
+//            preHandlerChain = preHandlerChainConstructor.newInstance();
+//        } catch (Throwable e) {
+//            Keel.getLogger().exception(e, r -> r.classification("KeelWebReceptionistLoader", "loadClass").message("PreHandlerChain REFLECTION EXCEPTION"));
+//            return;
+//        }
+
+        if (preHandlerChain == null) {
+            preHandlerChain = new PreHandlerChain();
+        }
+        preHandlerChain.executeHandlers(route, apiMeta);
 
         // finally!
         route.handler(routingContext -> {
