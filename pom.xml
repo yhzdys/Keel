@@ -6,8 +6,8 @@
 
     <groupId>io.github.sinri</groupId>
     <artifactId>Keel</artifactId>
-    <!--        <version>3.2.12-SNAPSHOT</version>-->
-    <version>3.2.12</version>
+    <!--    <version>3.2.12.1-SNAPSHOT</version>-->
+    <version>3.2.12.1</version>
 
     <name>Keel</name>
     <description>

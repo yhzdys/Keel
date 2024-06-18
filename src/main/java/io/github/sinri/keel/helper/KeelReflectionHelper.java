@@ -3,6 +3,7 @@ package io.github.sinri.keel.helper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -11,6 +12,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static io.github.sinri.keel.facade.KeelInstance.Keel;
@@ -77,32 +79,42 @@ public class KeelReflectionHelper {
      * @param <R>         the target base class to seek its implementations
      * @return the sought classes in a set
      * @since 3.0.6
+     * @since 3.2.12.1 rewrite
      */
     public <R> Set<Class<? extends R>> seekClassDescendantsInPackage(@Nonnull String packageName, @Nonnull Class<R> baseClass) {
 //        Reflections reflections = new Reflections(packageName);
 //        return reflections.getSubTypesOf(baseClass);
 
-        if (Keel.fileHelper().isRunningFromJAR()) {
-            return seekClassDescendantsInPackageForJar(packageName, baseClass);
-        } else {
-            return seekClassDescendantsInPackageForFileSystem(packageName, baseClass);
+        Set<Class<? extends R>> set = new HashSet<>();
+
+        List<String> classPathList = Keel.fileHelper().getClassPathList();
+        for (String classPath : classPathList) {
+            if (classPath.endsWith(".jar")) {
+                Set<Class<? extends R>> classes = seekClassDescendantsInPackageForProvidedJar(classPath, packageName, baseClass);
+                set.addAll(classes);
+            } else {
+                Set<Class<? extends R>> classes = seekClassDescendantsInPackageForFileSystem(packageName, baseClass);
+                set.addAll(classes);
+            }
         }
+
+        return set;
     }
 
     /**
      * @since 3.2.11
      */
     protected <R> Set<Class<? extends R>> seekClassDescendantsInPackageForFileSystem(@Nonnull String packageName, @Nonnull Class<R> baseClass) {
-        String packagePath = packageName.replace('.', '/');
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Set<Class<? extends R>> descendantClasses = new HashSet<>();
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        // in file system
+        String packagePath = packageName.replace('.', '/');
         try {
             // Assuming classes are in a directory on the file system (e.g., not in a JAR)
             URL resource = classLoader.getResource(packagePath);
             if (resource != null) {
                 URI uri = resource.toURI();
                 Path startPath = Paths.get(uri);
-
                 Files.walkFileTree(startPath, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -112,14 +124,11 @@ public class KeelReflectionHelper {
 
                             try {
                                 Class<? extends R> clazz = (Class<? extends R>) classLoader.loadClass(className);
-                                if (
-                                        baseClass.isAssignableFrom(clazz)
-                                    //&& !baseClass.equals(clazz)
-                                ) {
+                                if (baseClass.isAssignableFrom(clazz)) {
                                     descendantClasses.add(clazz);
                                 }
-                            } catch (ClassNotFoundException e) {
-                                Keel.getLogger().exception(e);
+                            } catch (Throwable e) {
+                                Keel.getLogger().debug(getClass() + " seekClassDescendantsInPackageForFileSystem for " + className + " error: " + e.getMessage());
                             }
                         }
                         return FileVisitResult.CONTINUE;
@@ -135,19 +144,41 @@ public class KeelReflectionHelper {
     /**
      * @since 3.2.11
      */
-    protected <R> Set<Class<? extends R>> seekClassDescendantsInPackageForJar(@Nonnull String packageName, @Nonnull Class<R> baseClass) {
+    protected <R> Set<Class<? extends R>> seekClassDescendantsInPackageForRunningJar(@Nonnull String packageName, @Nonnull Class<R> baseClass) {
         Set<Class<? extends R>> descendantClasses = new HashSet<>();
-        Set<String> strings = Keel.fileHelper().seekPackageClassFilesInJar(packageName);
+        Set<String> strings = Keel.fileHelper().seekPackageClassFilesInRunningJar(packageName);
         for (String s : strings) {
             try {
                 Class<?> aClass = Class.forName(s);
                 if (baseClass.isAssignableFrom(aClass)) {
                     descendantClasses.add((Class<? extends R>) aClass);
                 }
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            } catch (Throwable e) {
+                Keel.getLogger().debug(getClass() + " seekClassDescendantsInPackageForRunningJar for " + s + " error: " + e.getMessage());
             }
         }
+        return descendantClasses;
+    }
+
+    /**
+     * @since 3.2.11
+     */
+    protected <R> Set<Class<? extends R>> seekClassDescendantsInPackageForProvidedJar(@Nonnull String jarInClassPath, @Nonnull String packageName, @Nonnull Class<R> baseClass) {
+        Set<Class<? extends R>> descendantClasses = new HashSet<>();
+        List<String> classNames = Keel.fileHelper().traversalInJarFile(new File(jarInClassPath));
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        classNames.forEach(className -> {
+            if (className.startsWith(packageName + ".")) {
+                try {
+                    Class<? extends R> clazz = (Class<? extends R>) classLoader.loadClass(className);
+                    if (baseClass.isAssignableFrom(clazz)) {
+                        descendantClasses.add(clazz);
+                    }
+                } catch (Throwable e) {
+                    Keel.getLogger().debug(getClass() + " seekClassDescendantsInPackageForProvidedJar for " + className + " error: " + e.getMessage());
+                }
+            }
+        });
         return descendantClasses;
     }
 

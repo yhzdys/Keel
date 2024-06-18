@@ -64,7 +64,6 @@ public class KeelWebReceptionistKit<R extends KeelWebReceptionist> {
     public void loadPackage(String packageName) {
         Set<Class<? extends R>> allClasses = Keel.reflectionHelper()
                 .seekClassDescendantsInPackage(packageName, classOfReceptionist);
-
         try {
             allClasses.forEach(this::loadClass);
         } catch (Exception e) {
