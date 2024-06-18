@@ -1,6 +1,5 @@
 package io.github.sinri.keel.web.http.prehandler;
 
-import io.github.sinri.keel.core.TechnicalPreview;
 import io.github.sinri.keel.web.http.ApiMeta;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.Route;
@@ -16,7 +15,6 @@ import java.util.List;
  *
  * @since 3.2.13
  */
-@TechnicalPreview(since = "3.2.13")
 public class PreHandlerChain {
     protected final List<PlatformHandler> platformHandlers = new ArrayList<>();
 

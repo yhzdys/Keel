@@ -216,7 +216,7 @@ public class CataloguePageBuilder implements FastDocsContentResponder {
         tree.href = options.rootURLPath + "index.md";
         tree.level = 0;
         tree.name = options.subjectOfDocuments;
-        List<JarEntry> jarEntries = KeelHelpers.fileHelper().traversalInJar(options.rootMarkdownFilePath);
+        List<JarEntry> jarEntries = KeelHelpers.fileHelper().traversalInRunningJar(options.rootMarkdownFilePath);
         for (var jarEntry : jarEntries) {
             TreeNode child = buildTreeNodeInJar(jarEntry);
             if (child != null) {
@@ -236,7 +236,7 @@ public class CataloguePageBuilder implements FastDocsContentResponder {
             treeNode.level = Path.of(treeNode.href).getNameCount() - 1;
             treeNode.href = (options.rootURLPath + treeNode.href).replaceAll("/+", "/");
 
-            List<JarEntry> jarEntries = KeelHelpers.fileHelper().traversalInJar(jarEntry.getName());
+            List<JarEntry> jarEntries = KeelHelpers.fileHelper().traversalInRunningJar(jarEntry.getName());
             for (var childJarEntry : jarEntries) {
                 var x = buildTreeNodeInJar(childJarEntry);
                 if (x != null) treeNode.addChild(x);

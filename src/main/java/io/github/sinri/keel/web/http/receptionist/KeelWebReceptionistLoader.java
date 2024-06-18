@@ -1,6 +1,5 @@
 package io.github.sinri.keel.web.http.receptionist;
 
-import io.github.sinri.keel.core.TechnicalPreview;
 import io.github.sinri.keel.web.http.ApiMeta;
 import io.github.sinri.keel.web.http.PreHandlerChainMeta;
 import io.github.sinri.keel.web.http.prehandler.PreHandlerChain;
@@ -21,7 +20,6 @@ import static io.github.sinri.keel.helper.KeelHelpersInterface.KeelHelpers;
 /**
  * @since 3.2.13
  */
-@TechnicalPreview(since = "3.2.13")
 public class KeelWebReceptionistLoader {
     /**
      * Note: MAIN and TEST scopes are seperated.

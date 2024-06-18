@@ -22,9 +22,12 @@ import static io.github.sinri.keel.helper.KeelHelpersInterface.KeelHelpers;
 
 /**
  * @param <R> class of a subclass of KeelWebReceptionist
+ * @see io.github.sinri.keel.web.http.receptionist.KeelWebReceptionistLoader
  * @since 2.9.2
  * @since 3.0.0 TEST PASSED
+ * @deprecated since 3.2.13, use `KeelWebReceptionistLoader` instead.
  */
+@Deprecated(since = "3.2.13")
 public class KeelWebReceptionistKit<R extends KeelWebReceptionist> {
     private final Router router;
     private final Class<R> classOfReceptionist;
@@ -64,7 +67,6 @@ public class KeelWebReceptionistKit<R extends KeelWebReceptionist> {
     public void loadPackage(String packageName) {
         Set<Class<? extends R>> allClasses = Keel.reflectionHelper()
                 .seekClassDescendantsInPackage(packageName, classOfReceptionist);
-
         try {
             allClasses.forEach(this::loadClass);
         } catch (Exception e) {
