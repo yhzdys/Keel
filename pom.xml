@@ -6,8 +6,8 @@
 
     <groupId>io.github.sinri</groupId>
     <artifactId>Keel</artifactId>
-    <!--    <version>3.2.13-SNAPSHOT</version>-->
-    <version>3.2.13</version>
+    <!--            <version>3.2.14-SNAPSHOT</version>-->
+    <version>3.2.14</version>
 
     <name>Keel</name>
     <description>
@@ -78,12 +78,6 @@
             <artifactId>vertx-mail-client</artifactId>
             <version>${vertxVersion}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>io.vertx</groupId>-->
-        <!--            <artifactId>vertx-unit</artifactId>-->
-        <!--            <version>${vertxVersion}</version>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.commonmark</groupId>

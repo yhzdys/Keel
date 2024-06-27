@@ -1,5 +1,6 @@
 package io.github.sinri.keel.mysql;
 
+import io.github.sinri.keel.core.TechnicalPreview;
 import io.vertx.sqlclient.SqlConnection;
 
 import javax.annotation.Nonnull;
@@ -56,5 +57,10 @@ abstract public class NamedMySQLConnection {
     public final boolean isMySQLVersion8dot2() {
         return mysqlVersion != null
                 && mysqlVersion.startsWith("8.2.");
+    }
+
+    @TechnicalPreview(since = "3.2.14")
+    public boolean isForTransaction() {
+        return null != sqlConnection.transaction();
     }
 }

@@ -5,6 +5,9 @@ import io.vertx.core.buffer.Buffer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -376,5 +379,48 @@ public class KeelStringHelper {
             x.set(x.get().replace(k, v));
         });
         return x.get();
+    }
+
+    /**
+     * @since 3.2.14
+     */
+    private static final String NyaCodeDict = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz.";
+
+    /**
+     * @since 3.2.14
+     */
+    public String encodeToNyaCode(@Nonnull String raw) {
+        var ascii_input = URLEncoder.encode(raw, StandardCharsets.UTF_8);
+        StringBuilder result = new StringBuilder();
+        for (var i = 0; i < ascii_input.length(); i++) {
+            char x = ascii_input.charAt(i);
+            int i1 = (x & 0b11000000) >> 6;
+            var c1 = NyaCodeDict.substring(i1, i1 + 1);
+            int i2 = x & 0b00111111;
+            var c2 = NyaCodeDict.substring(i2, i2 + 1);
+            result.append(c1);
+            result.append(c2);
+        }
+        return result.toString();
+    }
+
+    /**
+     * @since 3.2.14
+     */
+    public String decodeFromNyaCode(@Nonnull String code) {
+        char[] charArray = code.toCharArray();
+        List<Character> list = new ArrayList<>();
+        for (var i = 0; i < charArray.length - 1; i += 2) {
+            int h = NyaCodeDict.indexOf(charArray[i]);
+            int l = NyaCodeDict.indexOf(charArray[i + 1]);
+            int i1 = h << 6 | l;
+            char x = (char) i1;
+            list.add(x);
+        }
+        char[] chars = new char[list.size()];
+        for (int i = 0; i < chars.length; i++) {
+            chars[i] = list.get(i);
+        }
+        return URLDecoder.decode(String.valueOf(chars), StandardCharsets.UTF_8);
     }
 }

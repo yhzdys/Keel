@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
  * @since 3.0.18 Finished Technical Preview.
  */
 public class DynamicNamedMySQLConnection extends NamedMySQLConnection {
-    private final @Nonnull  String dataSourceName;
+    private final @Nonnull String dataSourceName;
 
     public DynamicNamedMySQLConnection(@Nonnull SqlConnection sqlConnection, @Nonnull String dataSourceName) {
         super(sqlConnection);
@@ -21,5 +21,4 @@ public class DynamicNamedMySQLConnection extends NamedMySQLConnection {
     public String getDataSourceName() {
         return dataSourceName;
     }
-
 }

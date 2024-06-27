@@ -61,6 +61,7 @@ public class KeelAesCbcPkcs7Padding extends KeelAesUsingPkcs7Padding {
      *
      * @param source 源字符串
      * @return 加密后的密文
+     *  使用本方法需要加载BouncyCastle相关的库！
      */
     public String encrypt(String source) {
         try {
@@ -71,9 +72,8 @@ public class KeelAesCbcPkcs7Padding extends KeelAesUsingPkcs7Padding {
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(keyBytes, KEY_ALGORITHM), iv);
             byte[] decrypted = cipher.doFinal(sourceBytes);
             return Base64.getEncoder().encodeToString(decrypted);
-        } catch (InvalidAlgorithmParameterException | NoSuchPaddingException |
-                 IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | NoSuchProviderException |
-                 InvalidKeyException e) {
+        } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
+                 NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | NoSuchProviderException e) {
             throw new RuntimeException(e);
         }
     }

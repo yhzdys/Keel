@@ -87,7 +87,7 @@ public class KeelFileHelper {
     /**
      * Seek in JAR, under the root (exclusive)
      *
-     * @param root ends with '/'
+     * @param root ends with '/' for a directory
      * @return list of JarEntry
      * @since 3.2.12.1 original name is `traversalInJar`.
      */

@@ -54,7 +54,6 @@ public class KeelAesEcbPkcs5Padding extends KeelAesUsingPkcs5Padding {
             byte[] keyBytes = getKey().getBytes(ENCODING);
             encryptionCipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(keyBytes, KEY_ALGORITHM));
             byte[] encryptedMessageBytes = encryptionCipher.doFinal(source.getBytes(ENCODING));
-            System.out.println("encrypt output bytes: " + encryptedMessageBytes.length);
             return Base64.getEncoder().encodeToString(encryptedMessageBytes);
         } catch (NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException |
                  InvalidKeyException e) {
@@ -66,7 +65,6 @@ public class KeelAesEcbPkcs5Padding extends KeelAesUsingPkcs5Padding {
     public String decrypt(String encryptStr) {
         try {
             byte[] encryptedBase64 = Base64.getDecoder().decode(encryptStr);
-            //System.out.println("decrypt input bytes: " + encryptedBase64.length);
             Cipher decryptionCipher = Cipher.getInstance(getCipherAlgorithm().getExpression());
             byte[] keyBytes = getKey().getBytes(ENCODING);
             decryptionCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, KEY_ALGORITHM));
