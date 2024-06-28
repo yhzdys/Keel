@@ -382,13 +382,18 @@ public class KeelStringHelper {
     }
 
     /**
+     * @see <a href="https://github.com/sinri/NyaCode/blob/master/javascript/NyaCode.js">NyaCode JS Impl</a>
      * @since 3.2.14
      */
     private static final String NyaCodeDict = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz.";
+    /**
+     * @since 3.2.15 PR from yhzdys
+     */
     private static final char[] NyaCodeDictChars = NyaCodeDict.toCharArray();
 
     /**
      * @since 3.2.14
+     * @since 3.2.15 PR from yhzdys
      */
     public String encodeToNyaCode(@Nonnull String raw) {
         String encoded = URLEncoder.encode(raw, StandardCharsets.UTF_8);
@@ -403,6 +408,7 @@ public class KeelStringHelper {
 
     /**
      * @since 3.2.14
+     * @since 3.2.15 PR from yhzdys
      */
     public String decodeFromNyaCode(@Nonnull String code) {
         int idx = 0;
