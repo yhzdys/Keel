@@ -385,42 +385,31 @@ public class KeelStringHelper {
      * @since 3.2.14
      */
     private static final String NyaCodeDict = "-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz.";
+    private static final char[] NyaCodeDictChars = NyaCodeDict.toCharArray();
 
     /**
      * @since 3.2.14
      */
     public String encodeToNyaCode(@Nonnull String raw) {
-        var ascii_input = URLEncoder.encode(raw, StandardCharsets.UTF_8);
-        StringBuilder result = new StringBuilder();
-        for (var i = 0; i < ascii_input.length(); i++) {
-            char x = ascii_input.charAt(i);
-            int i1 = (x & 0b11000000) >> 6;
-            var c1 = NyaCodeDict.substring(i1, i1 + 1);
-            int i2 = x & 0b00111111;
-            var c2 = NyaCodeDict.substring(i2, i2 + 1);
-            result.append(c1);
-            result.append(c2);
+        String encoded = URLEncoder.encode(raw, StandardCharsets.UTF_8);
+        int i = 0;
+        char[] chars = encoded.toCharArray(), buffer = new char[chars.length << 1];
+        for (char c : chars) {
+            buffer[i++] = NyaCodeDictChars[(c & 0B11000000) >> 6];
+            buffer[i++] = NyaCodeDictChars[c & 0B00111111];
         }
-        return result.toString();
+        return new String(buffer);
     }
 
     /**
      * @since 3.2.14
      */
     public String decodeFromNyaCode(@Nonnull String code) {
-        char[] charArray = code.toCharArray();
-        List<Character> list = new ArrayList<>();
-        for (var i = 0; i < charArray.length - 1; i += 2) {
-            int h = NyaCodeDict.indexOf(charArray[i]);
-            int l = NyaCodeDict.indexOf(charArray[i + 1]);
-            int i1 = h << 6 | l;
-            char x = (char) i1;
-            list.add(x);
+        int idx = 0;
+        char[] chars = code.toCharArray(), buffer = new char[chars.length >> 1];
+        for (int i = 0; i < chars.length; ) {
+            buffer[idx++] = (char) (NyaCodeDict.indexOf(chars[i++]) << 6 | NyaCodeDict.indexOf(chars[i++]));
         }
-        char[] chars = new char[list.size()];
-        for (int i = 0; i < chars.length; i++) {
-            chars[i] = list.get(i);
-        }
-        return URLDecoder.decode(String.valueOf(chars), StandardCharsets.UTF_8);
+        return URLDecoder.decode(new String(buffer), StandardCharsets.UTF_8);
     }
 }
