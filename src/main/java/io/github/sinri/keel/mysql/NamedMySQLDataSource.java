@@ -165,11 +165,13 @@ public class NamedMySQLDataSource<C extends NamedMySQLConnection> {
                                 .compose(Future::succeededFuture, err -> {
                                     if (err instanceof TransactionRollbackException) {
                                         // already rollback
-                                        return Future.failedFuture(new KeelMySQLException("MySQLDataSource ROLLBACK Done Manually", err));
+                                        String error = "MySQLDataSource ROLLBACK Done Manually.";
+                                        return Future.failedFuture(new KeelMySQLException(error, err));
                                     } else {
+                                        String error = "MySQLDataSource ROLLBACK Finished. Core Reason: " + err.getMessage();
                                         // since 3.0.3 rollback failure would be thrown directly to downstream.
                                         return transaction.rollback()
-                                                .compose(rollbackDone -> Future.failedFuture(new KeelMySQLException("MySQLDataSource ROLLBACK Finished", err)));
+                                                .compose(rollbackDone -> Future.failedFuture(new KeelMySQLException(error, err)));
                                     }
                                 });
                     }, beginFailure -> Future.failedFuture(new KeelMySQLConnectionException(

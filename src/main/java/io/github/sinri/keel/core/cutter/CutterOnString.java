@@ -7,6 +7,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -35,16 +38,24 @@ public class CutterOnString implements Cutter<String> {
         return this;
     }
 
+    /**
+     * @since 3.2.15
+     */
     @Override
     public Future<Void> end() {
         if (!buffer.isEmpty()) {
-            return KeelAsyncKit.repeatedlyCall(routineResult -> {
-                if (buffer.contains("\n\n")) {
-                    return cut();
-                } else {
-                    routineResult.stop();
-                    return Future.succeededFuture();
+            List<String> list = new ArrayList<>();
+            if (buffer.contains("\n\n")) {
+                String[] split = buffer.split("\n\n");
+                Collections.addAll(list, split);
+            } else {
+                list.add(buffer);
+            }
+            return KeelAsyncKit.iterativelyCall(list, s -> {
+                if (componentHandler != null && s != null) {
+                    componentHandler.handle(s);
                 }
+                return Future.succeededFuture();
             });
         } else {
             return Future.succeededFuture();
@@ -66,7 +77,7 @@ public class CutterOnString implements Cutter<String> {
     }
 
     /**
-     * If there are double NewLine chars, cut!
+     * If there are double NewLine chars, cut from head to the DNL and send to componentHandler, and the left part left.
      */
     private Future<Void> cut() {
         AtomicReference<String> component = new AtomicReference<>();

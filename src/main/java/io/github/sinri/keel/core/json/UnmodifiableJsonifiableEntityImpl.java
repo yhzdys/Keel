@@ -12,8 +12,9 @@ import java.util.function.Function;
 
 /**
  * @since 3.1.10
+ * @since 3.2.15 be public
  */
-class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiableEntity {
+public class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiableEntity {
     private final @Nonnull JsonObject jsonObject;
 
     public UnmodifiableJsonifiableEntityImpl(@Nonnull JsonObject jsonObject) {
@@ -49,10 +50,6 @@ class UnmodifiableJsonifiableEntityImpl implements UnmodifiableJsonifiableEntity
         return jsonObject.toBuffer();
     }
 
-    /**
-     * @since 3.0.0
-     * @since 3.1.10 make it abstract.
-     */
     @Nonnull
     @Override
     public Iterator<Map.Entry<String, Object>> iterator() {

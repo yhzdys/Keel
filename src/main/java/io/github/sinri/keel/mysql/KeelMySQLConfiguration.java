@@ -121,7 +121,8 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
 
     /**
      * This data source name would be used in MySQL client pool name.
-     * Use different name for actually different data sources.
+     * Use different name for actually different data sources;
+     * if you want to create a temporary data source to perform instant query, UUID is a good component.
      */
     @Nonnull
     public String getDataSourceName() {
@@ -171,6 +172,7 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
     /**
      * With Client to run SQL on target MySQL Database one-time.
      * The client is to be created, and then soon closed after the sql queried.
+     * To use this method safely, remember to enable POOL SHARING and set a unique name for the pool.
      *
      * @since 3.1.6
      */
@@ -181,9 +183,9 @@ public class KeelMySQLConfiguration extends KeelConfigElement {
                 .connectingTo(this.getConnectOptions())
                 .using(Keel.getVertx())
                 .build();
+        // System.out.println("sqlClient: "+sqlClient.getClass()); // class io.vertx.mysqlclient.impl.MySQLPoolImpl
         return Future.succeededFuture()
-                .compose(v -> sqlClient.preparedQuery(sql)
-                        .execute()
+                .compose(v -> sqlClient.preparedQuery(sql).execute()
                         .compose(rows -> {
                             return Future.succeededFuture(ResultMatrix.create(rows));
                         }))
