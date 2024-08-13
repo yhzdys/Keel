@@ -1,7 +1,6 @@
 package io.github.sinri.keel.poi.excel;
 
 import io.github.sinri.keel.core.TechnicalPreview;
-import io.github.sinri.keel.core.ValueBox;
 import io.github.sinri.keel.facade.async.KeelAsyncKit;
 import io.github.sinri.keel.poi.excel.entity.*;
 import io.vertx.core.Future;
@@ -9,10 +8,7 @@ import org.apache.poi.ss.usermodel.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -24,27 +20,23 @@ import java.util.function.Function;
  */
 public class KeelSheet {
     private final Sheet sheet;
-    /**
-     * @since 3.1.3
-     */
-    private final @Nonnull ValueBox<FormulaEvaluator> formulaEvaluatorBox;
+    private final SheetReadOptions readOptions;
+
 
     /**
      * Load sheet without formula evaluator,
      * i.e. the cell with formula would be parsed to string as is.
      */
     public KeelSheet(@Nonnull Sheet sheet) {
-        this(sheet, new ValueBox<>());
+        this(sheet, new SheetReadOptions());
     }
 
     /**
-     * Load sheet with 3 kinds of cell formula evaluator: None, Cached, and Evaluate.
-     *
-     * @since 3.1.4
+     * @since 3.2.16
      */
-    public KeelSheet(@Nonnull Sheet sheet, @Nonnull ValueBox<FormulaEvaluator> formulaEvaluatorBox) {
+    public KeelSheet(@Nonnull Sheet sheet, @Nonnull SheetReadOptions readOptions) {
         this.sheet = sheet;
-        this.formulaEvaluatorBox = formulaEvaluatorBox;
+        this.readOptions = readOptions;
     }
 
     /**
@@ -72,6 +64,12 @@ public class KeelSheet {
     }
 
     /**
+     * DUMP following those rules:
+     * (1) NULL CELL to be "";
+     * (2) NUMERIC CELL to be a double;
+     * (3) FORMULA CELL to be a string (not set formula evaluator) or the computed value.
+     * (4) ELSE to be the string expression.
+     *
      * @since 3.0.14 add nullable to cell, and nonnull to return.
      * @since 3.1.3 return computed value for formula cells.
      * @since 3.1.4 add optional formulaEvaluator and becomes static again
@@ -79,20 +77,27 @@ public class KeelSheet {
     @Nonnull
     private static String dumpCellToString(
             @Nullable Cell cell,
-            @Nonnull ValueBox<FormulaEvaluator> formulaEvaluatorBox
+            @Nonnull SheetReadOptions readOptions
     ) {
         if (cell == null) return "";
         CellType cellType = cell.getCellType();
         String s;
         if (cellType == CellType.NUMERIC) {
             double numericCellValue = cell.getNumericCellValue();
-            s = String.valueOf(numericCellValue);
+
+            if (readOptions.isFormatDateTime() && DateUtil.isCellDateFormatted(cell)) {
+                // 按需处理日期为指定格式的文本
+                Date date = cell.getDateCellValue();
+                s = readOptions.getDateTimeFormat().format(date);
+            } else {
+                s = String.valueOf(numericCellValue);
+            }
         } else if (cellType == CellType.FORMULA) {
-            if (formulaEvaluatorBox.isValueAlreadySet()) {
+            if (readOptions.getFormulaEvaluatorBox().isValueAlreadySet()) {
                 CellType formulaResultType;
 
                 @Nullable
-                FormulaEvaluator formulaEvaluator = formulaEvaluatorBox.getValue();
+                FormulaEvaluator formulaEvaluator = readOptions.getFormulaEvaluatorBox().getValue();
 
                 if (formulaEvaluator == null) {
                     formulaResultType = cell.getCachedFormulaResultType();
@@ -132,13 +137,13 @@ public class KeelSheet {
             @Nonnull Row row,
             int maxColumns,
             @Nullable SheetRowFilter sheetRowFilter,
-            @Nonnull ValueBox<FormulaEvaluator> formulaEvaluatorBox
+            @Nonnull SheetReadOptions readOptions
     ) {
         List<String> rowDatum = new ArrayList<>();
 
         for (int i = 0; i < maxColumns; i++) {
             @Nullable Cell cell = row.getCell(i, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            String s = dumpCellToString(cell, formulaEvaluatorBox);
+            String s = dumpCellToString(cell, readOptions);
             rowDatum.add(s);
         }
 
@@ -169,7 +174,7 @@ public class KeelSheet {
      */
     public List<String> readRawRow(int i, int maxColumns, @Nullable SheetRowFilter sheetRowFilter) {
         var row = readRow(i);
-        return dumpRowToRawRow(row, maxColumns, sheetRowFilter, this.formulaEvaluatorBox);
+        return dumpRowToRawRow(row, maxColumns, sheetRowFilter, this.readOptions);
     }
 
     /**
@@ -186,7 +191,7 @@ public class KeelSheet {
             @Override
             public List<String> next() {
                 Row row = rowIterator.next();
-                return dumpRowToRawRow(row, maxColumns, sheetRowFilter, formulaEvaluatorBox);
+                return dumpRowToRawRow(row, maxColumns, sheetRowFilter, readOptions);
             }
         };
     }
@@ -244,13 +249,13 @@ public class KeelSheet {
                 if (checkColumnsRef.get() == 0) {
                     checkColumnsRef.set(autoDetectNonBlankColumnCountInOneRow(row));
                 }
-                List<String> headerRow = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                List<String> headerRow = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                 if (headerRow == null) {
                     throw new NullPointerException("Header Row is not valid");
                 }
                 keelSheetMatrix.setHeaderRow(headerRow);
             } else if (headerRowIndex < currentRowIndex) {
-                var x = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                var x = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                 if (x != null) {
                     keelSheetMatrix.addRow(x);
                 }
@@ -301,13 +306,13 @@ public class KeelSheet {
                     checkColumnsRef.set(autoDetectNonBlankColumnCountInOneRow(row));
                 }
 
-                var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                 if (rowDatum == null) throw new NullPointerException("Header Row is not valid");
                 KeelSheetMatrixRowTemplate rowTemplate = KeelSheetMatrixRowTemplate.create(rowDatum);
                 KeelSheetTemplatedMatrix templatedMatrix = KeelSheetTemplatedMatrix.create(rowTemplate);
                 templatedMatrixRef.set(templatedMatrix);
             } else if (currentRowIndex > headerRowIndex) {
-                var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                 if (rowDatum != null) {
                     templatedMatrixRef.get().addRawRow(rowDatum);
                 }
@@ -370,13 +375,13 @@ public class KeelSheet {
                     if (checkColumnsRef.get() == 0) {
                         checkColumnsRef.set(autoDetectNonBlankColumnCountInOneRow(row));
                     }
-                    var headerRow = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                    var headerRow = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                     if (headerRow == null) {
                         throw new NullPointerException("Header Row is not valid");
                     }
                     keelSheetMatrix.setHeaderRow(headerRow);
                 } else if (headerRowIndex < currentRowIndex) {
-                    List<String> rawRow = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                    List<String> rawRow = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                     if (rawRow != null) {
                         keelSheetMatrix.addRow(rawRow);
                     }
@@ -429,7 +434,7 @@ public class KeelSheet {
                         checkColumnsRef.set(autoDetectNonBlankColumnCountInOneRow(row));
                     }
 
-                    var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                    var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                     if (rowDatum == null) {
                         throw new NullPointerException("Header Row is not valid");
                     }
@@ -437,7 +442,7 @@ public class KeelSheet {
                     KeelSheetTemplatedMatrix templatedMatrix = KeelSheetTemplatedMatrix.create(rowTemplate);
                     templatedMatrixRef.set(templatedMatrix);
                 } else if (currentRowIndex > headerRowIndex) {
-                    var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, formulaEvaluatorBox);
+                    var rowDatum = dumpRowToRawRow(row, checkColumnsRef.get(), sheetRowFilter, readOptions);
                     if (rowDatum != null) {
                         templatedMatrixRef.get().addRawRow(rowDatum);
                     }

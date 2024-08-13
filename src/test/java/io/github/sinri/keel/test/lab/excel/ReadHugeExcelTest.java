@@ -1,6 +1,7 @@
 package io.github.sinri.keel.test.lab.excel;
 
 import io.github.sinri.keel.logger.issue.center.KeelIssueRecordCenter;
+import io.github.sinri.keel.poi.excel.FileAccessOptions;
 import io.github.sinri.keel.poi.excel.KeelSheet;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.tesuto.KeelTest;
@@ -47,7 +48,7 @@ public class ReadHugeExcelTest extends KeelTest {
      */
     @TestUnit
     public Future<Void> test1() {
-        var excelStreamReader = KeelSheets.factory(file);
+        var excelStreamReader = KeelSheets.openFile(new FileAccessOptions().setFile(file));
         KeelSheet excelSheetReader = excelStreamReader.generateReaderForSheet(0);
         AtomicInteger x = new AtomicInteger(0);
         excelSheetReader.blockReadAllRows(row -> {
@@ -69,7 +70,7 @@ public class ReadHugeExcelTest extends KeelTest {
      */
     @TestUnit
     public Future<Void> test2() {
-        var excelStreamReader = KeelSheets.factory(file);
+        var excelStreamReader = KeelSheets.openFile(new FileAccessOptions().setFile(file));
         KeelSheet excelSheetReader = excelStreamReader.generateReaderForSheet(0);
         AtomicInteger x = new AtomicInteger(0);
         return excelSheetReader.readAllRows(rows -> {

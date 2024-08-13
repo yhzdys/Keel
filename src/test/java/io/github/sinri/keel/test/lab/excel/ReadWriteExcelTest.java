@@ -1,5 +1,6 @@
 package io.github.sinri.keel.test.lab.excel;
 
+import io.github.sinri.keel.poi.excel.FileAccessOptions;
 import io.github.sinri.keel.poi.excel.KeelSheet;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrixRow;
@@ -38,7 +39,7 @@ public class ReadWriteExcelTest extends KeelTest {
 
     @TestUnit(skip = false)
     public Future<Void> read() {
-        KeelSheets keelSheets = KeelSheets.factory(file);
+        KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file));
         KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
         return keelSheet.readAllRowsToMatrix(1, 3, null)
                 .compose(matrix -> {

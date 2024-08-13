@@ -1,6 +1,7 @@
 package io.github.sinri.keel.poi.excel;
 
 import io.github.sinri.keel.core.ValueBox;
+import io.vertx.core.Handler;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -93,72 +94,6 @@ public class KeelSheets implements AutoCloseable {
     }
 
     /**
-     * @since 3.0.20
-     */
-    @Deprecated(since = "3.2.11")
-    public static KeelSheets factory(@Nonnull String file) {
-        return openFile(new FileAccessOptions()
-                .setFile(file)
-                .setWithFormulaEvaluator(false)
-        );
-    }
-
-    /**
-     * @since 3.1.4
-     */
-    @Deprecated(since = "3.2.11")
-    public static KeelSheets factory(@Nonnull String file, boolean withFormulaEvaluator) {
-        return openFile(new FileAccessOptions()
-                .setFile(file)
-                .setWithFormulaEvaluator(withFormulaEvaluator)
-        );
-    }
-
-    /**
-     * @since 3.0.20
-     */
-    @Deprecated(since = "3.2.11")
-    public static KeelSheets factory(@Nonnull File file) {
-        return openFile(new FileAccessOptions()
-                .setFile(file)
-                .setWithFormulaEvaluator(false)
-        );
-    }
-
-    /**
-     * @since 3.1.4
-     */
-    @Deprecated(since = "3.2.11")
-    public static KeelSheets factory(@Nonnull File file, boolean withFormulaEvaluator) {
-        return openFile(new FileAccessOptions()
-                .setFile(file)
-                .setWithFormulaEvaluator(withFormulaEvaluator)
-        );
-    }
-
-    /**
-     * @since 3.0.20
-     */
-    @Deprecated(since = "3.2.11")
-    public static KeelSheets factory(@Nonnull InputStream inputStream) {
-        return openFile(new FileAccessOptions()
-                .setInputStream(inputStream)
-                .setWithFormulaEvaluator(false)
-        );
-    }
-
-    /**
-     * @since 3.1.4
-     */
-    @Deprecated(since = "3.2.11")
-    public static KeelSheets factory(@Nonnull InputStream inputStream, boolean withFormulaEvaluator) {
-        return openFile(new FileAccessOptions()
-                .setInputStream(inputStream)
-                .setWithFormulaEvaluator(withFormulaEvaluator)
-        );
-    }
-
-    /**
      * @since 3.0.20 The great DAN and HONG discovered an issue with POI Factory Mode.
      */
     public static KeelSheets autoGenerate(@Nonnull InputStream inputStream) {
@@ -192,8 +127,6 @@ public class KeelSheets implements AutoCloseable {
     }
 
     /**
-     * @param withFormulaEvaluator
-     * @return
      * @since 3.1.4
      */
     public static KeelSheets autoGenerateXLSX(boolean withFormulaEvaluator) {
@@ -208,8 +141,6 @@ public class KeelSheets implements AutoCloseable {
     }
 
     /**
-     * @param withFormulaEvaluator
-     * @return
      * @since 3.1.4
      */
     public static KeelSheets autoGenerateXLS(boolean withFormulaEvaluator) {
@@ -225,36 +156,63 @@ public class KeelSheets implements AutoCloseable {
         return this;
     }
 
+    @Deprecated(since = "3.2.16")
     public KeelSheet generateReaderForSheet(@Nonnull String sheetName) {
-        return this.generateReaderForSheet(sheetName, true);
+        return this.generateReaderForSheet(sheetName, readOptions -> {
+        });
+    }
+
+    /**
+     * @since 3.2.16
+     */
+    public KeelSheet generateReaderForSheet(@Nonnull String sheetName, @Nonnull Handler<SheetReadOptions> readOptionsHandler) {
+        var sheet = this.getWorkbook().getSheet(sheetName);
+        var readOptions = new SheetReadOptions();
+        readOptions.setFormulaEvaluator(formulaEvaluator);
+        readOptionsHandler.handle(readOptions);
+        return new KeelSheet(sheet, readOptions);
     }
 
     /**
      * @since 3.1.4
      */
+    @Deprecated(since = "3.2.16")
     public KeelSheet generateReaderForSheet(@Nonnull String sheetName, boolean parseFormulaCellToValue) {
         var sheet = this.getWorkbook().getSheet(sheetName);
         ValueBox<FormulaEvaluator> formulaEvaluatorValueBox = new ValueBox<>();
         if (parseFormulaCellToValue) {
             formulaEvaluatorValueBox.setValue(this.formulaEvaluator);
         }
-        return new KeelSheet(sheet, formulaEvaluatorValueBox);
+        return new KeelSheet(sheet, new SheetReadOptions().setFormulaEvaluator(formulaEvaluator));
     }
 
+    @Deprecated(since = "3.2.16")
     public KeelSheet generateReaderForSheet(int sheetIndex) {
         return this.generateReaderForSheet(sheetIndex, true);
     }
 
     /**
+     * @since 3.2.16
+     */
+    public KeelSheet generateReaderForSheet(int sheetIndex, @Nonnull Handler<SheetReadOptions> readOptionsHandler) {
+        var sheet = this.getWorkbook().getSheetAt(sheetIndex);
+        var readOptions = new SheetReadOptions();
+        readOptions.setFormulaEvaluator(formulaEvaluator);
+        readOptionsHandler.handle(readOptions);
+        return new KeelSheet(sheet, readOptions);
+    }
+
+    /**
      * @since 3.1.4
      */
+    @Deprecated(since = "3.2.16")
     public KeelSheet generateReaderForSheet(int sheetIndex, boolean parseFormulaCellToValue) {
         var sheet = this.getWorkbook().getSheetAt(sheetIndex);
         ValueBox<FormulaEvaluator> formulaEvaluatorValueBox = new ValueBox<>();
         if (parseFormulaCellToValue) {
             formulaEvaluatorValueBox.setValue(this.formulaEvaluator);
         }
-        return new KeelSheet(sheet, formulaEvaluatorValueBox);
+        return new KeelSheet(sheet, new SheetReadOptions().setFormulaEvaluator(formulaEvaluator));
     }
 
     public KeelSheet generateWriterForSheet(@Nonnull String sheetName, Integer pos) {
@@ -262,7 +220,7 @@ public class KeelSheets implements AutoCloseable {
         if (pos != null) {
             this.getWorkbook().setSheetOrder(sheetName, pos);
         }
-        return new KeelSheet(sheet, new ValueBox<>(this.formulaEvaluator));
+        return new KeelSheet(sheet, new SheetReadOptions().setFormulaEvaluator(this.formulaEvaluator));
     }
 
     public KeelSheet generateWriterForSheet(@Nonnull String sheetName) {

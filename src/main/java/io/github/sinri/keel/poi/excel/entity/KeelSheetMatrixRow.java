@@ -1,5 +1,7 @@
 package io.github.sinri.keel.poi.excel.entity;
 
+import io.vertx.core.json.JsonObject;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -63,5 +65,45 @@ public class KeelSheetMatrixRow {
     public double readValueToDouble(int i) {
         return readValueToBigDecimal(i).doubleValue();
 //        return Double.parseDouble(readValue(i));
+    }
+
+    /**
+     * @param columns definitions of columns as list
+     * @return a json object with each column in defined type
+     * @since 3.2.16
+     */
+    public JsonObject toJsonObject(@Nonnull List<Column> columns) {
+        JsonObject jsonObject = new JsonObject();
+        for (int i = 0; i < columns.size(); i++) {
+            Column column = columns.get(i);
+            Object value;
+            switch (column.getColumnType()) {
+                case Long:
+                    value = readValueToLong(i);
+                    break;
+                case Double:
+                    value = readValueToDouble(i);
+                    break;
+                case Integer:
+                    value = readValueToInteger(i);
+                    break;
+                case BigDecimal:
+                    value = readValueToBigDecimal(i);
+                    break;
+                case String:
+                default:
+                    value = readValue(i);
+                    break;
+            }
+            jsonObject.put(column.getName(), value);
+        }
+        return jsonObject;
+    }
+
+    /**
+     * @since 3.2.16
+     */
+    public <T> T toBoundDataEntity(@Nonnull List<Column> columns, Class<T> tClass) {
+        return toJsonObject(columns).mapTo(tClass);
     }
 }

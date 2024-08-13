@@ -1,5 +1,6 @@
 package io.github.sinri.keel.test.lab.excel;
 
+import io.github.sinri.keel.poi.excel.FileAccessOptions;
 import io.github.sinri.keel.poi.excel.KeelSheet;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrix;
@@ -37,7 +38,7 @@ public class ReadTemplatedExcelTest extends KeelTest {
 
     @TestUnit(skip = true)
     public Future<Void> test1() {
-        try (KeelSheets keelSheets = KeelSheets.factory(file)) {
+        try (KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file))) {
             KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
             KeelSheetMatrix keelSheetMatrix = keelSheet.blockReadAllRowsToMatrix(1, 6, null);
             keelSheetMatrix.getRawRowList().forEach(row -> {
@@ -47,9 +48,9 @@ public class ReadTemplatedExcelTest extends KeelTest {
             keelSheetMatrix.getRowIterator(KeelSheetMatrixRowExt.class).forEachRemaining(r -> {
                 this.getLogger().info(log -> log.message("record")
                         .context(c -> c
-                        .put("record_id", r.recordId())
-                        .put("name", r.name())
-                        .put("age", r.age())
+                                .put("record_id", r.recordId())
+                                .put("name", r.name())
+                                .put("age", r.age())
                         )
                 );
             });
@@ -59,7 +60,7 @@ public class ReadTemplatedExcelTest extends KeelTest {
 
     @TestUnit(skip = false)
     public Future<Void> test2() {
-        KeelSheets keelSheets = KeelSheets.factory(file);
+        KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file));
         KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
         return keelSheet.readAllRowsToMatrix(1, 0, null)
                 .compose(keelSheetMatrix -> {
@@ -78,7 +79,7 @@ public class ReadTemplatedExcelTest extends KeelTest {
 
     @TestUnit(skip = true)
     public Future<Void> test3() {
-        try (KeelSheets keelSheets = KeelSheets.factory(file)) {
+        try (KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file))) {
             KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
             KeelSheetTemplatedMatrix templatedMatrix = keelSheet.blockReadAllRowsToTemplatedMatrix(0, 6, null);
             templatedMatrix.getRows().forEach(row -> {
@@ -90,7 +91,7 @@ public class ReadTemplatedExcelTest extends KeelTest {
 
     @TestUnit(skip = true)
     public Future<Void> test4() {
-        KeelSheets keelSheets = KeelSheets.factory(file);
+        KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file));
         KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
         return keelSheet.readAllRowsToTemplatedMatrix(0, 7, null)
                 .compose(templatedMatrix -> {
@@ -117,7 +118,7 @@ public class ReadTemplatedExcelTest extends KeelTest {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-        KeelSheets keelSheets = KeelSheets.factory(fileInputStream);
+        KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setInputStream(fileInputStream));
         KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
         return keelSheet.readAllRowsToTemplatedMatrix(0, 128, null)
                 .compose(templatedMatrix -> {
