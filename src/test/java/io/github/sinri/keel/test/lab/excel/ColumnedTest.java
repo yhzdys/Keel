@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.github.sinri.keel.facade.async.KeelAsyncKit;
 import io.github.sinri.keel.poi.excel.FileAccessOptions;
-import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.KeelSheetReader;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.poi.excel.entity.Column;
 import io.github.sinri.keel.poi.excel.entity.ColumnType;
@@ -26,10 +26,12 @@ public class ColumnedTest extends KeelTest {
                 .setWithFormulaEvaluator(true)
         );
 
-        KeelSheet sheet1 = keelSheets.generateReaderForSheet(
+        KeelSheetReader sheet1 = keelSheets.generateReaderForSheet(
                 "Sheet1",
                 readOptions -> readOptions
-                        .setFormatDateTime(true)
+                        .maintainDefaultColumnReadOptions(c -> c
+                                .setFormatDateTime(true)
+                        )
         );
         List<Column> columns = List.of(
                 //姓名	科目	金额	核算数量	序列数值	校验

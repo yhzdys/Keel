@@ -2,7 +2,7 @@ package io.github.sinri.keel.test.lab.excel;
 
 import io.github.sinri.keel.logger.issue.center.KeelIssueRecordCenter;
 import io.github.sinri.keel.poi.excel.FileAccessOptions;
-import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.KeelSheetReader;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.tesuto.KeelTest;
 import io.github.sinri.keel.tesuto.TestUnit;
@@ -49,7 +49,8 @@ public class ReadHugeExcelTest extends KeelTest {
     @TestUnit
     public Future<Void> test1() {
         var excelStreamReader = KeelSheets.openFile(new FileAccessOptions().setFile(file));
-        KeelSheet excelSheetReader = excelStreamReader.generateReaderForSheet(0);
+        KeelSheetReader excelSheetReader = excelStreamReader.generateReaderForSheet(0, s -> {
+        });
         AtomicInteger x = new AtomicInteger(0);
         excelSheetReader.blockReadAllRows(row -> {
             String index = row.getCell(0).getStringCellValue();
@@ -71,7 +72,8 @@ public class ReadHugeExcelTest extends KeelTest {
     @TestUnit
     public Future<Void> test2() {
         var excelStreamReader = KeelSheets.openFile(new FileAccessOptions().setFile(file));
-        KeelSheet excelSheetReader = excelStreamReader.generateReaderForSheet(0);
+        KeelSheetReader excelSheetReader = excelStreamReader.generateReaderForSheet(0, s -> {
+        });
         AtomicInteger x = new AtomicInteger(0);
         return excelSheetReader.readAllRows(rows -> {
 //                    String index = row.getCell(0).getStringCellValue();

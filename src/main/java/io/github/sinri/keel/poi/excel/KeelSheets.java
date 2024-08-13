@@ -157,7 +157,7 @@ public class KeelSheets implements AutoCloseable {
     }
 
     @Deprecated(since = "3.2.16")
-    public KeelSheet generateReaderForSheet(@Nonnull String sheetName) {
+    public KeelSheetReader generateReaderForSheet(@Nonnull String sheetName) {
         return this.generateReaderForSheet(sheetName, readOptions -> {
         });
     }
@@ -165,25 +165,25 @@ public class KeelSheets implements AutoCloseable {
     /**
      * @since 3.2.16
      */
-    public KeelSheet generateReaderForSheet(@Nonnull String sheetName, @Nonnull Handler<SheetReadOptions> readOptionsHandler) {
+    public KeelSheetReader generateReaderForSheet(@Nonnull String sheetName, @Nonnull Handler<SheetReadOptions> readOptionsHandler) {
         var sheet = this.getWorkbook().getSheet(sheetName);
         var readOptions = new SheetReadOptions();
         readOptions.setFormulaEvaluator(formulaEvaluator);
         readOptionsHandler.handle(readOptions);
-        return new KeelSheet(sheet, readOptions);
+        return new KeelSheetReader(sheet, readOptions);
     }
 
     /**
      * @since 3.1.4
      */
     @Deprecated(since = "3.2.16")
-    public KeelSheet generateReaderForSheet(@Nonnull String sheetName, boolean parseFormulaCellToValue) {
+    public KeelSheetReader generateReaderForSheet(@Nonnull String sheetName, boolean parseFormulaCellToValue) {
         var sheet = this.getWorkbook().getSheet(sheetName);
         ValueBox<FormulaEvaluator> formulaEvaluatorValueBox = new ValueBox<>();
         if (parseFormulaCellToValue) {
             formulaEvaluatorValueBox.setValue(this.formulaEvaluator);
         }
-        return new KeelSheet(sheet, new SheetReadOptions().setFormulaEvaluator(formulaEvaluator));
+        return new KeelSheetReader(sheet, new SheetReadOptions().setFormulaEvaluator(formulaEvaluator));
     }
 
     @Deprecated(since = "3.2.16")
@@ -194,36 +194,36 @@ public class KeelSheets implements AutoCloseable {
     /**
      * @since 3.2.16
      */
-    public KeelSheet generateReaderForSheet(int sheetIndex, @Nonnull Handler<SheetReadOptions> readOptionsHandler) {
+    public KeelSheetReader generateReaderForSheet(int sheetIndex, @Nonnull Handler<SheetReadOptions> readOptionsHandler) {
         var sheet = this.getWorkbook().getSheetAt(sheetIndex);
         var readOptions = new SheetReadOptions();
         readOptions.setFormulaEvaluator(formulaEvaluator);
         readOptionsHandler.handle(readOptions);
-        return new KeelSheet(sheet, readOptions);
+        return new KeelSheetReader(sheet, readOptions);
     }
 
     /**
      * @since 3.1.4
      */
     @Deprecated(since = "3.2.16")
-    public KeelSheet generateReaderForSheet(int sheetIndex, boolean parseFormulaCellToValue) {
+    public KeelSheetReader generateReaderForSheet(int sheetIndex, boolean parseFormulaCellToValue) {
         var sheet = this.getWorkbook().getSheetAt(sheetIndex);
         ValueBox<FormulaEvaluator> formulaEvaluatorValueBox = new ValueBox<>();
         if (parseFormulaCellToValue) {
             formulaEvaluatorValueBox.setValue(this.formulaEvaluator);
         }
-        return new KeelSheet(sheet, new SheetReadOptions().setFormulaEvaluator(formulaEvaluator));
+        return new KeelSheetReader(sheet, new SheetReadOptions().setFormulaEvaluator(formulaEvaluator));
     }
 
-    public KeelSheet generateWriterForSheet(@Nonnull String sheetName, Integer pos) {
+    public KeelSheetWriter generateWriterForSheet(@Nonnull String sheetName, Integer pos) {
         Sheet sheet = this.getWorkbook().createSheet(sheetName);
         if (pos != null) {
             this.getWorkbook().setSheetOrder(sheetName, pos);
         }
-        return new KeelSheet(sheet, new SheetReadOptions().setFormulaEvaluator(this.formulaEvaluator));
+        return new KeelSheetWriter(sheet);
     }
 
-    public KeelSheet generateWriterForSheet(@Nonnull String sheetName) {
+    public KeelSheetWriter generateWriterForSheet(@Nonnull String sheetName) {
         return generateWriterForSheet(sheetName, null);
     }
 

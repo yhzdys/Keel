@@ -1,7 +1,8 @@
 package io.github.sinri.keel.test.lab.excel;
 
 import io.github.sinri.keel.poi.excel.FileAccessOptions;
-import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.KeelSheetReader;
+import io.github.sinri.keel.poi.excel.KeelSheetWriter;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrixRow;
 import io.github.sinri.keel.tesuto.KeelTest;
@@ -19,7 +20,7 @@ public class ReadWriteExcelTest extends KeelTest {
     @TestUnit(skip = true)
     public Future<Void> write() {
         KeelSheets keelSheets = KeelSheets.autoGenerateXLSX();
-        KeelSheet keelSheet = keelSheets.generateWriterForSheet("First Sheet");
+        KeelSheetWriter keelSheet = keelSheets.generateWriterForSheet("First Sheet");
         keelSheet.blockWriteAllRows(List.of(
                 List.of("name", "value"),
                 List.of("A1", "1"),
@@ -40,7 +41,8 @@ public class ReadWriteExcelTest extends KeelTest {
     @TestUnit(skip = false)
     public Future<Void> read() {
         KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file));
-        KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+        KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, s -> {
+        });
         return keelSheet.readAllRowsToMatrix(1, 3, null)
                 .compose(matrix -> {
 //                    matrix.getRawRowList().forEach(row -> {

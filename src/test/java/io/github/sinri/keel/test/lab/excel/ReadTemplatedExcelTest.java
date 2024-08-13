@@ -1,7 +1,7 @@
 package io.github.sinri.keel.test.lab.excel;
 
 import io.github.sinri.keel.poi.excel.FileAccessOptions;
-import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.KeelSheetReader;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrix;
 import io.github.sinri.keel.poi.excel.entity.KeelSheetMatrixRow;
@@ -39,7 +39,8 @@ public class ReadTemplatedExcelTest extends KeelTest {
     @TestUnit(skip = true)
     public Future<Void> test1() {
         try (KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file))) {
-            KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+            KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, x -> {
+            });
             KeelSheetMatrix keelSheetMatrix = keelSheet.blockReadAllRowsToMatrix(1, 6, null);
             keelSheetMatrix.getRawRowList().forEach(row -> {
                 this.getLogger().info(log -> log.message("BLOCK: " + KeelHelpers.stringHelper().joinStringArray(row, ", ")));
@@ -61,7 +62,8 @@ public class ReadTemplatedExcelTest extends KeelTest {
     @TestUnit(skip = false)
     public Future<Void> test2() {
         KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file));
-        KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+        KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, x -> {
+        });
         return keelSheet.readAllRowsToMatrix(1, 0, null)
                 .compose(keelSheetMatrix -> {
                     keelSheetMatrix.getRawRowList().forEach(row -> {
@@ -80,7 +82,8 @@ public class ReadTemplatedExcelTest extends KeelTest {
     @TestUnit(skip = true)
     public Future<Void> test3() {
         try (KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file))) {
-            KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+            KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, x -> {
+            });
             KeelSheetTemplatedMatrix templatedMatrix = keelSheet.blockReadAllRowsToTemplatedMatrix(0, 6, null);
             templatedMatrix.getRows().forEach(row -> {
                 this.getLogger().info(log -> log.message("BLOCK TEMPLATED: " + row.toJsonObject()));
@@ -92,7 +95,8 @@ public class ReadTemplatedExcelTest extends KeelTest {
     @TestUnit(skip = true)
     public Future<Void> test4() {
         KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setFile(file));
-        KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+        KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, s -> {
+        });
         return keelSheet.readAllRowsToTemplatedMatrix(0, 7, null)
                 .compose(templatedMatrix -> {
                     templatedMatrix.getRows().forEach(row -> {
@@ -119,7 +123,8 @@ public class ReadTemplatedExcelTest extends KeelTest {
             throw new RuntimeException(e);
         }
         KeelSheets keelSheets = KeelSheets.openFile(new FileAccessOptions().setInputStream(fileInputStream));
-        KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+        KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, x -> {
+        });
         return keelSheet.readAllRowsToTemplatedMatrix(0, 128, null)
                 .compose(templatedMatrix -> {
                     templatedMatrix.getRows().forEach(row -> {

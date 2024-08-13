@@ -2,7 +2,7 @@ package io.github.sinri.keel.test.lab.excel;
 
 import com.github.pjfanning.xlsx.StreamingReader;
 import io.github.sinri.keel.poi.excel.FileAccessOptions;
-import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.KeelSheetReader;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.tesuto.KeelTest;
 import io.github.sinri.keel.tesuto.TestUnit;
@@ -55,7 +55,9 @@ public class StaxTest extends KeelTest {
                         })
                         .setFile("/Users/sinri/code/keel/src/test/resources/runtime/huge.xlsx")
         );
-        KeelSheet keelSheet = keelSheets.generateReaderForSheet(0);
+        KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(0, event -> {
+
+        });
         keelSheet.getMatrixRowIterator(3, null).forEachRemaining(row -> {
             getLogger().info("<" + row.readValue(0) + "> " + row.readValueToBigDecimal(1));
         });

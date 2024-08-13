@@ -1,6 +1,6 @@
 package io.github.sinri.keel.test.lab.excel;
 
-import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.KeelSheetReader;
 import io.github.sinri.keel.poi.excel.KeelSheets;
 import io.github.sinri.keel.tesuto.KeelTest;
 import io.github.sinri.keel.tesuto.TestUnit;
@@ -32,7 +32,8 @@ public class XlsIssueTest extends KeelTest {
             var path = "/Users/leqee/code/Keel/src/test/resources/excel/excel_5.xls";
             var fs = new FileInputStream(new File(path));
             KeelSheets keelSheets = KeelSheets.autoGenerate(fs);
-            KeelSheet keelSheet = keelSheets.generateReaderForSheet(1);
+            KeelSheetReader keelSheet = keelSheets.generateReaderForSheet(1, s -> {
+            });
             return keelSheet.readAllRowsToMatrix()
                     .compose(matrix -> {
                         matrix.getRawRowList().forEach(rawRow -> {
