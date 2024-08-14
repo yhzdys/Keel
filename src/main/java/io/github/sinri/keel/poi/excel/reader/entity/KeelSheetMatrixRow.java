@@ -1,5 +1,6 @@
-package io.github.sinri.keel.poi.excel.entity;
+package io.github.sinri.keel.poi.excel.reader.entity;
 
+import io.github.sinri.keel.poi.excel.reader.options.ColumnReadOptions;
 import io.vertx.core.json.JsonObject;
 
 import javax.annotation.Nonnull;
@@ -47,8 +48,6 @@ public class KeelSheetMatrixRow {
         } catch (ArithmeticException arithmeticException) {
             return null;
         }
-//        double v = readValueToDouble(i);
-//        return (int) v;
     }
 
     @Nullable
@@ -58,13 +57,10 @@ public class KeelSheetMatrixRow {
         } catch (ArithmeticException arithmeticException) {
             return null;
         }
-//        double v = readValueToDouble(i);
-//        return (long) v;
     }
 
     public double readValueToDouble(int i) {
         return readValueToBigDecimal(i).doubleValue();
-//        return Double.parseDouble(readValue(i));
     }
 
     /**
@@ -72,10 +68,10 @@ public class KeelSheetMatrixRow {
      * @return a json object with each column in defined type
      * @since 3.2.16
      */
-    public JsonObject toJsonObject(@Nonnull List<Column> columns) {
+    public JsonObject toJsonObject(@Nonnull List<ColumnReadOptions> columns) {
         JsonObject jsonObject = new JsonObject();
         for (int i = 0; i < columns.size(); i++) {
-            Column column = columns.get(i);
+            ColumnReadOptions column = columns.get(i);
             Object value;
             switch (column.getColumnType()) {
                 case Long:
@@ -95,15 +91,17 @@ public class KeelSheetMatrixRow {
                     value = readValue(i);
                     break;
             }
-            jsonObject.put(column.getName(), value);
+            jsonObject.put(column.getColumnName(), value);
         }
         return jsonObject;
     }
 
     /**
      * @since 3.2.16
+     * Use Jackson to map Json Object to a java class.
+     * @see <a href="https://github.com/FasterXML/jackson-databind">Jackson Databind</a>
      */
-    public <T> T toBoundDataEntity(@Nonnull List<Column> columns, Class<T> tClass) {
+    public <T> T toBoundDataEntity(@Nonnull List<ColumnReadOptions> columns, Class<T> tClass) {
         return toJsonObject(columns).mapTo(tClass);
     }
 }

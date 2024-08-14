@@ -1,5 +1,8 @@
-package io.github.sinri.keel.poi.excel.entity;
+package io.github.sinri.keel.poi.excel.reader.entity;
 
+import io.github.sinri.keel.poi.excel.reader.options.ColumnReadOptions;
+
+import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -112,5 +115,22 @@ public class KeelSheetMatrix {
             ptr.incrementAndGet();
             return this.rawRow2row.apply(rawRow);
         }
+    }
+
+    /**
+     * Convert and merge each content row into entities.
+     *
+     * @see <a href="https://github.com/FasterXML/jackson-databind">Jackson Databind</a>
+     * @since 3.2.16
+     */
+    public <T> List<T> toBoundDataEntities(@Nonnull List<ColumnReadOptions> columns, Class<T> tClass) {
+        List<T> list = new ArrayList<>();
+        Iterator<KeelSheetMatrixRow> rowIterator = getRowIterator();
+        while (rowIterator.hasNext()) {
+            KeelSheetMatrixRow row = rowIterator.next();
+            T t = row.toJsonObject(columns).mapTo(tClass);
+            list.add(t);
+        }
+        return list;
     }
 }

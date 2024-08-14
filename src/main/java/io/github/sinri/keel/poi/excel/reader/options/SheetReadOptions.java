@@ -1,4 +1,4 @@
-package io.github.sinri.keel.poi.excel;
+package io.github.sinri.keel.poi.excel.reader.options;
 
 import io.github.sinri.keel.core.ValueBox;
 import io.vertx.core.Handler;
@@ -18,9 +18,15 @@ public class SheetReadOptions {
      */
     private final @Nonnull ValueBox<FormulaEvaluator> formulaEvaluatorBox = new ValueBox<>();
 
-    private final SheetColumnReadOptions defaultColumnReadOptions = new SheetColumnReadOptions();
 
-    private final Map<Integer, SheetColumnReadOptions> columnReadOptionsMap = new HashMap<>();
+    /**
+     * Configure the read options for each column.
+     * If one column is not configured,
+     * the read code would follow defaultColumnReadOptions,
+     * but the column name would be thrown as omitted.
+     */
+    private final Map<Integer, ColumnReadOptions> columnReadOptionsMap = new HashMap<>();
+    private final ColumnReadOptions defaultColumnReadOptions = new ColumnReadOptions();
 
     /**
      * SET cell formula evaluator to Cached or Evaluate.
@@ -45,26 +51,26 @@ public class SheetReadOptions {
         return formulaEvaluatorBox;
     }
 
-    public SheetColumnReadOptions getDefaultColumnReadOptions() {
+    public ColumnReadOptions getDefaultColumnReadOptions() {
         return defaultColumnReadOptions;
     }
 
-    public SheetReadOptions maintainDefaultColumnReadOptions(Handler<SheetColumnReadOptions> handler) {
+    public SheetReadOptions maintainDefaultColumnReadOptions(Handler<ColumnReadOptions> handler) {
         handler.handle(this.defaultColumnReadOptions);
         return this;
     }
 
-    public Map<Integer, SheetColumnReadOptions> getColumnReadOptionsMap() {
+    public Map<Integer, ColumnReadOptions> getColumnReadOptionsMap() {
         return columnReadOptionsMap;
     }
 
-    public SheetReadOptions setColumnReadOptions(Integer index, SheetColumnReadOptions columnReadOptions) {
+    public SheetReadOptions setColumnReadOptions(Integer index, ColumnReadOptions columnReadOptions) {
         this.columnReadOptionsMap.put(index, columnReadOptions);
         return this;
     }
 
     @Nullable
-    public SheetColumnReadOptions getColumnReadOptions(Integer index) {
+    public ColumnReadOptions getColumnReadOptions(Integer index) {
         return columnReadOptionsMap.get(index);
     }
 }

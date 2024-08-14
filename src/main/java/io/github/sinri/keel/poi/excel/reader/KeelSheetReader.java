@@ -1,8 +1,11 @@
-package io.github.sinri.keel.poi.excel;
+package io.github.sinri.keel.poi.excel.reader;
 
 import io.github.sinri.keel.core.TechnicalPreview;
 import io.github.sinri.keel.facade.async.KeelAsyncKit;
-import io.github.sinri.keel.poi.excel.entity.*;
+import io.github.sinri.keel.poi.excel.KeelSheet;
+import io.github.sinri.keel.poi.excel.reader.entity.*;
+import io.github.sinri.keel.poi.excel.reader.options.ColumnReadOptions;
+import io.github.sinri.keel.poi.excel.reader.options.SheetReadOptions;
 import io.vertx.core.Future;
 import org.apache.poi.ss.usermodel.*;
 
@@ -67,7 +70,7 @@ public class KeelSheetReader extends KeelSheet {
     private static String dumpCellToString(
             @Nullable Cell cell,
             @Nonnull SheetReadOptions readOptions,
-            @Nullable SheetColumnReadOptions columnReadOptions
+            @Nullable ColumnReadOptions columnReadOptions
     ) {
         if (cell == null) return "";
 
@@ -138,7 +141,7 @@ public class KeelSheetReader extends KeelSheet {
 
         for (int i = 0; i < maxColumns; i++) {
             @Nullable Cell cell = row.getCell(i, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            SheetColumnReadOptions columnReadOptions = readOptions.getColumnReadOptions(i);
+            ColumnReadOptions columnReadOptions = readOptions.getColumnReadOptions(i);
             String s = dumpCellToString(cell, readOptions, columnReadOptions);
             rowDatum.add(s);
         }
@@ -463,5 +466,21 @@ public class KeelSheetReader extends KeelSheet {
                 return KeelSheetMatrixTemplatedRow.create(template, rawRowIterator.next());
             }
         };
+    }
+
+    public List<ColumnReadOptions> buildColumnListDefinition() {
+        Optional<Integer> max = this.readOptions.getColumnReadOptionsMap().keySet().stream().max(Comparator.comparingInt(o -> o));
+        if (max.isPresent()) {
+            List<ColumnReadOptions> list = new ArrayList<>(max.get());
+            for (int i = 0; i < max.get() - 1; i++) {
+                ColumnReadOptions sheetColumnReadOptions = this.readOptions.getColumnReadOptionsMap().get(i);
+                if (sheetColumnReadOptions == null) {
+                    sheetColumnReadOptions = this.readOptions.getDefaultColumnReadOptions();
+                }
+                list.set(i, ColumnReadOptions.build(sheetColumnReadOptions.getColumnName(), sheetColumnReadOptions.getColumnType()));
+            }
+            return list;
+        }
+        return null;
     }
 }

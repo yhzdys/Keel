@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.github.sinri.keel.facade.async.KeelAsyncKit;
 import io.github.sinri.keel.poi.excel.FileAccessOptions;
-import io.github.sinri.keel.poi.excel.KeelSheetReader;
 import io.github.sinri.keel.poi.excel.KeelSheets;
-import io.github.sinri.keel.poi.excel.entity.Column;
-import io.github.sinri.keel.poi.excel.entity.ColumnType;
+import io.github.sinri.keel.poi.excel.reader.KeelSheetReader;
+import io.github.sinri.keel.poi.excel.reader.options.ColumnReadOptions;
+import io.github.sinri.keel.poi.excel.reader.options.ColumnType;
 import io.github.sinri.keel.tesuto.KeelTest;
 import io.github.sinri.keel.tesuto.TestUnit;
 import io.vertx.core.Future;
@@ -33,17 +33,17 @@ public class ColumnedTest extends KeelTest {
                                 .setFormatDateTime(true)
                         )
         );
-        List<Column> columns = List.of(
+        List<ColumnReadOptions> columns = List.of(
                 //姓名	科目	金额	核算数量	序列数值	校验
-                new Column("姓名", ColumnType.String),
-                new Column("科目", ColumnType.String),
-                new Column("金额", ColumnType.Double),
-                new Column("核算数量", ColumnType.Integer),
-                new Column("序列数值", ColumnType.Long),
-                new Column("校验", ColumnType.Double),
-                new Column("确认日期", ColumnType.String),
-                new Column("ddl", ColumnType.String),
-                new Column("迷之数字", ColumnType.BigDecimal)
+                ColumnReadOptions.build("姓名", ColumnType.String),
+                ColumnReadOptions.build("科目", ColumnType.String),
+                ColumnReadOptions.build("金额", ColumnType.Double),
+                ColumnReadOptions.build("核算数量", ColumnType.Integer),
+                ColumnReadOptions.build("序列数值", ColumnType.Long),
+                ColumnReadOptions.build("校验", ColumnType.Double),
+                ColumnReadOptions.build("确认日期", ColumnType.String),
+                ColumnReadOptions.build("ddl", ColumnType.String),
+                ColumnReadOptions.build("迷之数字", ColumnType.BigDecimal)
         );
         return sheet1.readAllRowsToMatrix().compose(matrix -> {
             return KeelAsyncKit.iterativelyCall(matrix.getRowIterator(), row -> {
